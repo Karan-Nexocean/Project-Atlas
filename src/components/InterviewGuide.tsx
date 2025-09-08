@@ -253,8 +253,13 @@ export const InterviewGuide: React.FC<InterviewGuideProps> = ({ onStartAnalysis 
     <div className="container mx-auto px-4 py-8">
       {/* Hero Section */}
       <div className="text-center mb-16 py-12">
-        <h1 className="text-5xl md:text-6xl font-extrabold text-slate-800 tracking-tight mb-2">
-          Varuna
+        <h1 className="text-5xl md:text-6xl font-extrabold text-slate-800 tracking-tight mb-2 flex items-center justify-center">
+          <img
+            src="/logo/varuna-logo.png"
+            alt="Varuna logo"
+            className="h-20 w-20 md:h-24 md:w-24"
+          />
+          <span className="sr-only">Varuna</span>
         </h1>
         <div className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-600 bg-clip-text text-transparent mb-6">
           The Guardian of Resume Quality

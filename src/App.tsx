@@ -81,6 +81,13 @@ function App() {
   }
 
   const handleFileUpload = async (file: File) => {
+    // When a new resume is added/analyzed, clear previous tasks/state
+    try {
+      setTasks([]);
+      setTasksTransformToken(null);
+      setTasksPlanToken(null);
+      try { localStorage.removeItem('varuna:tasks'); } catch {}
+    } catch {}
     setIsAnalyzing(true);
     try {
       // Best-effort candidate name from file name (exclude designations)
@@ -250,13 +257,15 @@ function App() {
       }}
       onOpenChat={() => setChatOpen(true)}
     >
-      {/* Page header */}
-      <section className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-900">{pageTitle}</h1>
-          <p className="text-sm text-slate-600">{pageSubtitle}</p>
-        </div>
-      </section>
+      {/* Page header (hidden on Interview Guide) */}
+      {currentView !== 'guide' && (
+        <section className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-semibold text-slate-900">{pageTitle}</h1>
+            <p className="text-sm text-slate-600">{pageSubtitle}</p>
+          </div>
+        </section>
+      )}
 
       {/* Main content panels */}
       {currentView === 'ask' && (

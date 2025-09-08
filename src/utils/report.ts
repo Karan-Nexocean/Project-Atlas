@@ -5,7 +5,7 @@ import type { ResumeAnalysis } from '../App';
 // Single logo used for PDF header. Update to your actual file name.
 const LOGO_WINGMAN_URL = 'logos/nexocean-mascot.png';
 // Secondary logo (right side) — Varuna
-const LOGO_NEXO_URL = 'logos/Varuna-logo.png';
+const LOGO_NEXO_URL = 'logo/varuna-logo.png';
 
 type LogoImage = { data: string; w: number; h: number };
 type HeaderOpts = { candidateName?: string; overallScore?: number; etaMinutesMin?: number; etaMinutesMax?: number };
