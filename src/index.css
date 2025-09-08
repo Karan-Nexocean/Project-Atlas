@@ -1,0 +1,296 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom animations */
+@layer utilities {
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .animate-shimmer {
+    background-image: linear-gradient(
+      90deg,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,0.6) 50%,
+      rgba(255,255,255,0) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.6s linear infinite;
+  }
+}
+
+/* Subtle page background gradient (light + dark) */
+@layer base {
+  body {
+    /* Lighter, scroll-attached background to avoid repaint on scroll */
+    background:
+      radial-gradient(1000px 720px at 12% 0%, rgba(var(--ocean-glow),0.14), transparent 55%),
+      radial-gradient(900px 620px at 88% 100%, rgba(var(--v-turquoise),0.10), transparent 60%),
+      linear-gradient(180deg, #f6f9fe 0%, #eef2f9 100%);
+    background-attachment: scroll, scroll, scroll;
+  }
+  .dark body {
+    background:
+      radial-gradient(1100px 760px at 15% 5%, rgba(56,189,248,0.18), transparent 60%),
+      radial-gradient(900px 640px at 85% 95%, rgba(45,212,191,0.14), transparent 60%),
+      linear-gradient(180deg, #0a111d 0%, #080e18 100%);
+    background-attachment: scroll, scroll, scroll;
+  }
+}
+
+/* Varuna color tokens */
+:root {
+  /* Visual Design System: Offblack, Paper White, True Turquoise */
+  --v-offblack: 17 24 39;       /* #111827 */
+  --v-paper: 252 252 252;       /* #FCFCFC */
+  --v-turquoise: 20 184 166;    /* #14B8A6 (teal/turquoise) */
+  --ocean-deep: 7 21 33;        /* #071521 - deep ocean */
+  --ocean-teal: 12 74 110;      /* #0C4A6E - dark teal */
+  --ocean-glow: 56 189 248;     /* #38BDF8 - cyan glow */
+
+  /* Legacy brand tokens retained for compatibility (mapped softly to new palette) */
+  --brand-blue: var(--v-turquoise);
+  --brand-coral: 20 184 166;   /* collapse gradient; keep accent consistent */
+  --brand-butter: 240 253 250; /* turquoise-tinted paper */
+  --brand-lavender: 224 242 241; /* light cyan tint */
+  --brand-cream: var(--v-paper);
+}
+
+.dark {
+  --v-offblack: 241 245 249;   /* #F1F5F9 for text on dark */
+  --v-paper: 10 15 25;         /* deep near-black background */
+  --v-turquoise: 45 212 191;   /* slightly brighter turquoise */
+
+  /* Legacy brand tokens (dark mapping) */
+  --brand-blue: var(--v-turquoise);
+  --brand-coral: var(--v-turquoise);
+  --brand-butter: 6 78 59;      /* deep teal tint */
+  --brand-lavender: 15 118 110; /* tealish tint */
+  --brand-cream: var(--v-paper);
+}
+
+/* Neumorphism helpers */
+@layer components {
+  /* Varuna Spinner */
+  @keyframes spin360 {
+    to { transform: rotate(360deg); }
+  }
+  .varuna-spinner {
+    position: relative;
+    display: inline-block;
+    width: var(--vs, 3rem);
+    height: var(--vs, 3rem);
+    border-radius: 9999px;
+    /* Turquoise sweep with hollow center */
+    background: conic-gradient(
+      from 0deg,
+      rgba(var(--v-turquoise), 0) 0deg,
+      rgba(var(--v-turquoise), 0.15) 90deg,
+      rgba(var(--v-turquoise), 0.85) 360deg
+    );
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 0);
+    mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 0);
+    animation: spin360 .9s linear infinite;
+    will-change: transform;
+  }
+  .varuna-spinner::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 4px rgba(100,116,139,0.18);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .varuna-spinner { animation-duration: 1.6s; }
+  }
+
+  /* Smooth progress (determinate + indeterminate) */
+  .progress-track {
+    position: relative;
+    overflow: hidden;
+    height: 0.75rem; /* 12px */
+    border-radius: 9999px;
+    background: rgba(15,23,42,0.08);
+  }
+  .dark .progress-track { background: rgba(148,163,184,0.16); }
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, rgba(20,184,166,0.35), rgba(20,184,166,0.85));
+    transform-origin: left center;
+    transform: scaleX(var(--p, 0));
+    transition: transform .45s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+  }
+  @keyframes progress-slide {
+    0% { transform: translateX(-40%); }
+    100% { transform: translateX(140%); }
+  }
+  .progress-bar-indeterminate {
+    position: absolute;
+    top: 0; bottom: 0;
+    left: -40%;
+    width: 40%;
+    background: linear-gradient(90deg, rgba(20,184,166,0.25), rgba(20,184,166,0.85));
+    border-radius: inherit;
+    animation: progress-slide 1.2s ease-in-out infinite;
+    will-change: transform;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .progress-bar-indeterminate { animation-duration: 2.4s; }
+  }
+  /* Gradient buttons and states */
+  .btn-gradient {
+    @apply bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-600 text-white;
+  }
+  .btn-gradient:hover { filter: brightness(1.05); }
+  .btn-gradient:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .nav-active-gradient {
+    @apply bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-600 text-white;
+  }
+
+  .bubble-user-gradient {
+    @apply bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-600 text-white;
+  }
+  /* Ocean background with subtle waves and bubbles */
+  .ocean-bg {
+    background:
+      radial-gradient(1000px 700px at 70% 10%, rgba(var(--ocean-glow),0.06), transparent 60%),
+      radial-gradient(800px 600px at 15% 25%, rgba(var(--v-turquoise),0.10), transparent 60%),
+      radial-gradient(900px 600px at 90% 80%, rgba(var(--ocean-teal),0.20), transparent 60%),
+      linear-gradient(180deg, rgba(var(--ocean-teal),0.45) 0%, rgba(var(--ocean-deep),0.95) 100%),
+      rgb(var(--ocean-deep));
+    filter: saturate(105%);
+    /* Promote to its own layer for smoother scroll */
+    will-change: transform;
+    transform: translateZ(0);
+    contain: paint;
+  }
+  .ocean-bg::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    /* Remove SVG turbulence for performance; keep light highlights */
+    background:
+      radial-gradient(600px 400px at 20% 15%, rgba(255,255,255,0.05), transparent 60%),
+      radial-gradient(900px 500px at 80% 85%, rgba(255,255,255,0.04), transparent 70%);
+    background-size: auto, auto;
+    mix-blend-mode: soft-light;
+  }
+  /* Decorative ocean orbs and arcs */
+  .ocean-orb {
+    position: fixed;
+    width: 420px;
+    height: 420px;
+    border-radius: 9999px;
+    background: radial-gradient(circle at 40% 40%, rgba(var(--ocean-glow),0.55), rgba(255,255,255,0.0) 60%),
+                radial-gradient(circle at 60% 60%, rgba(var(--v-turquoise),0.35), rgba(255,255,255,0.0) 70%);
+    /* Reduce blur for lower paint cost */
+    filter: blur(16px);
+    opacity: 0.35;
+    pointer-events: none;
+    will-change: transform, opacity;
+    transform: translateZ(0);
+  }
+  .ocean-arc {
+    position: fixed;
+    width: 80vw;
+    height: 80vw;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.08);
+    pointer-events: none;
+    mask-image: radial-gradient(circle, black 40%, transparent 60%);
+    opacity: 0.6;
+    will-change: transform, opacity;
+    transform: translateZ(0);
+  }
+
+  /* Ocean progress bar */
+  @keyframes ocean-wave {
+    0% { background-position: 0 0, 0 0; }
+    100% { background-position: 200% 0, 200% 0; }
+  }
+  .ocean-progress {
+    position: relative;
+    overflow: hidden;
+    border-radius: 9999px;
+    background: rgba(15, 23, 42, 0.08);
+  }
+  .ocean-progress-bar {
+    height: 100%;
+    background:
+      linear-gradient(90deg, rgba(20,184,166,0.35), rgba(20,184,166,0.75)),
+      repeating-linear-gradient(135deg, rgba(20,184,166,0.25) 0 12px, rgba(255,255,255,0.15) 12px 24px);
+    background-size: 200% 100%, 200% 100%;
+    animation: ocean-wave 2.2s linear infinite;
+  }
+  .neo-surface {
+    background: rgb(var(--v-paper));
+    box-shadow: 20px 20px 50px rgba(0, 0, 0, 0.12), -20px -20px 50px rgba(255, 255, 255, 0.85);
+  }
+  .neo-card {
+    background: rgb(var(--v-paper));
+    /* Lighter shadows to reduce paint cost */
+    box-shadow: 0 10px 20px rgba(7, 21, 33, 0.18), 0 4px 10px rgba(7, 21, 33, 0.12);
+    /* Avoid backdrop-filter on scrollable surfaces (expensive) */
+  }
+  .neo-pressed {
+    background: rgb(var(--v-paper));
+    box-shadow: inset 8px 8px 18px rgba(7, 21, 33, 0.10), inset -8px -8px 18px rgba(255, 255, 255, 0.85);
+  }
+
+  .dark .neo-surface {
+    background: rgba(10, 15, 25, 0.95);
+    box-shadow: 20px 20px 50px rgba(0, 0, 0, 0.60), -20px -20px 50px rgba(255, 255, 255, 0.06);
+  }
+  .dark .neo-card {
+    background: rgba(10, 15, 25, 0.92);
+    box-shadow: 8px 8px 20px rgba(0, 0, 0, 0.45), -8px -8px 20px rgba(255, 255, 255, 0.04);
+  }
+  .dark .neo-pressed {
+    background: rgba(10, 15, 25, 0.92);
+    box-shadow: inset 6px 6px 12px rgba(0, 0, 0, 0.6), inset -6px -6px 12px rgba(255, 255, 255, 0.06);
+  }
+
+  /* Subtle divider */
+  .neo-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.08), transparent);
+  }
+  .dark .neo-divider {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+  }
+
+  /* Pretty scrollbar for panel */
+  .pretty-scrollbar::-webkit-scrollbar {
+    width: 10px;
+  }
+  .pretty-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .pretty-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.4);
+    border-radius: 9999px;
+  }
+  .dark .pretty-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.35);
+  }
+}
+
+/* Utilities */
+@layer utilities {
+  .gpu-layer {
+    will-change: transform;
+    transform: translateZ(0);
+  }
+  .cv-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 600px;
+  }
+  .will-change-transform-opacity {
+    will-change: transform, opacity;
+  }
+}
