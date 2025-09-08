@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Menu, X, Target, UploadCloud, BarChart3, MessageSquare, Waves, ListTodo, Search, User } from 'lucide-react';
+import { Menu, X, Target, UploadCloud, BarChart3, MessageSquare, Waves, ListTodo, Search, User, KeyRound } from 'lucide-react';
 import { IconBadge } from './IconBadge';
 import netlifyIdentity, { initIdentity, currentIdentityEmail } from '../utils/identity';
 
@@ -29,6 +29,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   const [email, setEmail] = useState<string>(() => {
     try { return localStorage.getItem('varuna:recruiterEmail') || ''; } catch { return ''; }
   });
+  const [groqKeyOpen, setGroqKeyOpen] = useState(false);
+  const [groqKey, setGroqKey] = useState<string>(() => { try { return localStorage.getItem('varuna:groqKey') || ''; } catch { return ''; } });
   const allowedDomain = (import.meta as any)?.env?.VITE_ALLOW_EMAIL_DOMAIN || '';
 
   useEffect(() => {
@@ -57,6 +59,12 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     try { localStorage.setItem('varuna:recruiterEmail', v); } catch {}
     setEmail(v);
     setIdentityOpen(false);
+  }
+  function saveGroqKey(next: string) {
+    const v = next.trim();
+    try { localStorage.setItem('varuna:groqKey', v); } catch {}
+    setGroqKey(v);
+    setGroqKeyOpen(false);
   }
 
   const NavItem: React.FC<{
@@ -174,6 +182,14 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               <span className="hidden sm:inline">{email ? email : 'Identify'}</span>
             </button>
             <button
+              onClick={() => setGroqKeyOpen(true)}
+              className="inline-flex items-center gap-2 rounded-lg bg-white border border-slate-200 text-slate-700 px-3 py-2 text-sm shadow-sm"
+              title={groqKey ? 'API key set' : 'Set GROQ API key'}
+            >
+              <KeyRound className="w-4 h-4" />
+              <span className="hidden sm:inline">{groqKey ? 'Key set' : 'Set API Key'}</span>
+            </button>
+            <button
               onClick={() => netlifyIdentity.open()}
               className="inline-flex items-center gap-2 rounded-lg bg-slate-800 text-white px-3 py-2 text-sm shadow-sm"
               title="Sign in with Netlify Identity"
@@ -227,6 +243,29 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             <div className="mt-5 flex justify-end gap-3">
               <button onClick={() => setIdentityOpen(false)} className="px-4 py-2 rounded-xl bg-slate-100 text-slate-800">Cancel</button>
               <button onClick={() => saveEmail(email)} className="px-4 py-2 rounded-xl btn-gradient text-white">Save</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {groqKeyOpen && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setGroqKeyOpen(false)} />
+          <div className="relative w-[92vw] max-w-md rounded-2xl bg-white border border-slate-200 shadow-2xl p-6">
+            <h4 className="text-lg font-semibold text-slate-800 mb-2">GROQ API Key</h4>
+            <p className="text-sm text-slate-600 mb-4">Enter a server key. It will be sent with requests to your Netlify Functions and stored only in your browser.</p>
+            <input
+              type="password"
+              value={groqKey}
+              onChange={(e) => setGroqKey(e.target.value)}
+              placeholder="gsk_..."
+              className="w-full rounded-xl border border-slate-300 px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-v-turquoise/40"
+            />
+            <div className="mt-5 flex justify-between gap-3">
+              <button onClick={() => { setGroqKey(''); saveGroqKey(''); }} className="px-4 py-2 rounded-xl bg-slate-100 text-slate-800">Clear</button>
+              <div className="flex gap-3">
+                <button onClick={() => setGroqKeyOpen(false)} className="px-4 py-2 rounded-xl bg-slate-100 text-slate-800">Cancel</button>
+                <button onClick={() => saveGroqKey(groqKey)} className="px-4 py-2 rounded-xl btn-gradient text-white">Save</button>
+              </div>
             </div>
           </div>
         </div>

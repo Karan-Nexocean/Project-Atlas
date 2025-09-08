@@ -111,6 +111,11 @@ async function logToBlobs(event: Record<string, any>) {
   } catch {}
 }
 
+function getHeader(event: any, name: string): string {
+  const h = event.headers || {};
+  return (h[name] || h[name.toLowerCase()] || '').toString();
+}
+
 export const handler: Handler = async (event, context) => {
   if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
   const allowDomain = process.env.ALLOW_EMAIL_DOMAIN || '';
@@ -136,7 +141,8 @@ export const handler: Handler = async (event, context) => {
     resumeText = resumeText.slice(0, 12_000);
     if (!resumeText) return { statusCode: 400, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'No resume text provided or extracted' }) };
 
-    const apiKey = process.env.GROQ_API_KEY;
+    const headerKey = getHeader(event, 'X-Groq-Key');
+    const apiKey = process.env.GROQ_API_KEY || headerKey;
     if (!apiKey) return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'GROQ_API_KEY is not set on server' }) };
 
     const groq = new Groq({ apiKey });

@@ -32,6 +32,10 @@ export const AskView: React.FC<AskViewProps> = () => {
         const { getAuthHeaders } = await import('../utils/identity');
         Object.assign(headers, await getAuthHeaders());
       } catch {}
+      try {
+        const g = localStorage.getItem('varuna:groqKey') || '';
+        if (g) headers['X-Groq-Key'] = g;
+      } catch {}
       const resp = await fetch('/api/chat', {
         method: 'POST',
         headers,
