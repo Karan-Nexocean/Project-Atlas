@@ -36,6 +36,10 @@ export const AskView: React.FC<AskViewProps> = () => {
         const g = localStorage.getItem('varuna:groqKey') || '';
         if (g) headers['X-Groq-Key'] = g;
       } catch {}
+      try {
+        const db = localStorage.getItem('varuna:dbUrl') || '';
+        if (db) headers['X-Db-Url'] = db;
+      } catch {}
       const resp = await fetch('/api/chat', {
         method: 'POST',
         headers,

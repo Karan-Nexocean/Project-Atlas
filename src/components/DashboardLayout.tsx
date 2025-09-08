@@ -31,6 +31,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   });
   const [groqKeyOpen, setGroqKeyOpen] = useState(false);
   const [groqKey, setGroqKey] = useState<string>(() => { try { return localStorage.getItem('varuna:groqKey') || ''; } catch { return ''; } });
+  const [dbUrl, setDbUrl] = useState<string>(() => { try { return localStorage.getItem('varuna:dbUrl') || ''; } catch { return ''; } });
   const allowedDomain = (import.meta as any)?.env?.VITE_ALLOW_EMAIL_DOMAIN || '';
 
   useEffect(() => {
@@ -64,6 +65,12 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     const v = next.trim();
     try { localStorage.setItem('varuna:groqKey', v); } catch {}
     setGroqKey(v);
+    setGroqKeyOpen(false);
+  }
+  function saveDbUrl(next: string) {
+    const v = next.trim();
+    try { localStorage.setItem('varuna:dbUrl', v); } catch {}
+    setDbUrl(v);
     setGroqKeyOpen(false);
   }
 
@@ -251,8 +258,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         <div className="fixed inset-0 z-[70] flex items-center justify-center">
           <div className="absolute inset-0 bg-black/40" onClick={() => setGroqKeyOpen(false)} />
           <div className="relative w-[92vw] max-w-md rounded-2xl bg-white border border-slate-200 shadow-2xl p-6">
-            <h4 className="text-lg font-semibold text-slate-800 mb-2">GROQ API Key</h4>
-            <p className="text-sm text-slate-600 mb-4">Enter a server key. It will be sent with requests to your Netlify Functions and stored only in your browser.</p>
+            <h4 className="text-lg font-semibold text-slate-800 mb-2">Server Credentials</h4>
+            <p className="text-sm text-slate-600 mb-4">These are stored in your browser and sent to your Netlify Functions with each request (for internal testing without Netlify env vars).</p>
             <input
               type="password"
               value={groqKey}
@@ -260,11 +267,18 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               placeholder="gsk_..."
               className="w-full rounded-xl border border-slate-300 px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-v-turquoise/40"
             />
+            <input
+              type="text"
+              value={dbUrl}
+              onChange={(e) => setDbUrl(e.target.value)}
+              placeholder="postgresql://…?sslmode=require"
+              className="w-full mt-3 rounded-xl border border-slate-300 px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-v-turquoise/40"
+            />
             <div className="mt-5 flex justify-between gap-3">
-              <button onClick={() => { setGroqKey(''); saveGroqKey(''); }} className="px-4 py-2 rounded-xl bg-slate-100 text-slate-800">Clear</button>
+              <button onClick={() => { setGroqKey(''); setDbUrl(''); saveGroqKey(''); saveDbUrl(''); }} className="px-4 py-2 rounded-xl bg-slate-100 text-slate-800">Clear</button>
               <div className="flex gap-3">
                 <button onClick={() => setGroqKeyOpen(false)} className="px-4 py-2 rounded-xl bg-slate-100 text-slate-800">Cancel</button>
-                <button onClick={() => saveGroqKey(groqKey)} className="px-4 py-2 rounded-xl btn-gradient text-white">Save</button>
+                <button onClick={() => { saveGroqKey(groqKey); saveDbUrl(dbUrl); }} className="px-4 py-2 rounded-xl btn-gradient text-white">Save</button>
               </div>
             </div>
           </div>

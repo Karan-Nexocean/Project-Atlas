@@ -3,6 +3,7 @@
 import type { Handler } from '@netlify/functions';
 import { Groq } from 'groq-sdk';
 import { getStore } from '@netlify/blobs';
+import { neon } from '@neondatabase/serverless';
 
 // Fallback JSON extractor (should be rare in JSON mode)
 function tryExtractJSONObject(text: string): any | null {
@@ -111,6 +112,29 @@ async function logToBlobs(event: Record<string, any>) {
   } catch {}
 }
 
+async function logToNeon(event: Record<string, any>, dbUrl?: string) {
+  const url = dbUrl || process.env.NEON_DATABASE_URL || '';
+  if (!url) return;
+  try {
+    const sql = neon(url);
+    await sql`create table if not exists varuna_usage (
+      id text primary key,
+      kind text not null,
+      recruiter text,
+      filename text,
+      candidate text,
+      overall_score int,
+      input_type text,
+      input_length int,
+      turns int,
+      created_at timestamptz default now()
+    )`;
+    const id = `${Date.now()}_${Math.random().toString(36).slice(2,10)}`;
+    await sql`insert into varuna_usage (id, kind, recruiter, filename, candidate, overall_score, input_type, input_length, turns)
+              values (${id}, ${event.kind}, ${event.recruiter || null}, ${event.filename || null}, ${event.candidate || null}, ${event.overallScore || null}, ${event.input?.type || null}, ${event.input?.length || null}, ${event.turns || null})`;
+  } catch {}
+}
+
 function getHeader(event: any, name: string): string {
   const h = event.headers || {};
   return (h[name] || h[name.toLowerCase()] || '').toString();
@@ -142,6 +166,7 @@ export const handler: Handler = async (event, context) => {
     if (!resumeText) return { statusCode: 400, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'No resume text provided or extracted' }) };
 
     const headerKey = getHeader(event, 'X-Groq-Key');
+    const headerDb = getHeader(event, 'X-Db-Url');
     const apiKey = process.env.GROQ_API_KEY || headerKey;
     if (!apiKey) return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'GROQ_API_KEY is not set on server' }) };
 
@@ -190,7 +215,7 @@ export const handler: Handler = async (event, context) => {
     const candidate = (rawBody?.candidateName as string) || deriveCandidateNameFromFilename(rawBody?.filename);
     const msg = `Varuna Analyze • ${recruiter || 'unknown'} → ${candidate || rawBody?.filename || 'unknown'} • score=${normalized.overallScore ?? 'n/a'} • len=${resumeText.length}`;
     logToSlack(msg);
-    await logToBlobs({
+    const toRecord = {
       kind: 'analyze',
       recruiter: recruiter || 'unknown',
       filename: rawBody?.filename || null,
@@ -198,7 +223,9 @@ export const handler: Handler = async (event, context) => {
       overallScore: normalized.overallScore,
       input: { type: rawBody?.pdfBase64 ? 'pdf' : (rawBody?.text ? 'text' : 'unknown'), length: resumeText.length },
       at: new Date().toISOString(),
-    });
+    } as any;
+    await logToBlobs(toRecord);
+    await logToNeon(toRecord, headerDb || process.env.NEON_DATABASE_URL);
 
     return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(normalized) };
   } catch (err: any) {

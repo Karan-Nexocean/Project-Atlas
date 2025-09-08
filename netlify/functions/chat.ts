@@ -2,6 +2,7 @@
 import type { Handler } from '@netlify/functions';
 import { Groq } from 'groq-sdk';
 import { getStore } from '@netlify/blobs';
+import { neon } from '@neondatabase/serverless';
 
 function getRecruiterEmail(event: any, context: any): string | null {
   const idEmail = (context?.clientContext?.user as any)?.email as string | undefined;
@@ -39,6 +40,29 @@ async function logToBlobs(event: Record<string, any>) {
   } catch {}
 }
 
+async function logToNeon(event: Record<string, any>, dbUrl?: string) {
+  const url = dbUrl || process.env.NEON_DATABASE_URL || '';
+  if (!url) return;
+  try {
+    const sql = neon(url);
+    await sql`create table if not exists varuna_usage (
+      id text primary key,
+      kind text not null,
+      recruiter text,
+      filename text,
+      candidate text,
+      overall_score int,
+      input_type text,
+      input_length int,
+      turns int,
+      created_at timestamptz default now()
+    )`;
+    const id = `${Date.now()}_${Math.random().toString(36).slice(2,10)}`;
+    await sql`insert into varuna_usage (id, kind, recruiter, filename, candidate, overall_score, input_type, input_length, turns)
+              values (${id}, ${event.kind}, ${event.recruiter || null}, null, null, null, null, null, ${event.turns || null})`;
+  } catch {}
+}
+
 function getHeader(event: any, name: string): string {
   const h = event.headers || {};
   return (h[name] || h[name.toLowerCase()] || '').toString();
@@ -46,7 +70,7 @@ function getHeader(event: any, name: string): string {
 
 export const handler: Handler = async (event, context) => {
   if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
-  const allowDomain = process.env.ALLOW_EMAIL_DOMAIN || '';
+    const allowDomain = process.env.ALLOW_EMAIL_DOMAIN || '';
   const recruiter = getRecruiterEmail(event, context);
   const dom = checkDomain(recruiter, allowDomain);
   if (!dom.ok) return { statusCode: dom.error?.startsWith('Forbidden') ? 403 : 401, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: dom.error }) };
@@ -55,6 +79,7 @@ export const handler: Handler = async (event, context) => {
     const body = JSON.parse(event.body || '{}') as { messages: { role: 'user' | 'assistant'; content: string }[] };
     const messages = Array.isArray(body.messages) ? body.messages.slice(-16) : [];
     const headerKey = getHeader(event, 'X-Groq-Key');
+    const headerDb = getHeader(event, 'X-Db-Url');
     const apiKey = process.env.GROQ_API_KEY || headerKey;
     if (!apiKey) return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'GROQ_API_KEY is not set on server' }) };
     const groq = new Groq({ apiKey });
@@ -76,7 +101,9 @@ export const handler: Handler = async (event, context) => {
 
     const content = (completion as any).choices?.[0]?.message?.content ?? '';
     logToSlack(`Varuna Chat • ${recruiter || 'unknown'} • turns=${messages.length + 1}`);
-    await logToBlobs({ kind: 'chat', recruiter: recruiter || 'unknown', turns: messages.length + 1, at: new Date().toISOString() });
+    const toRecord = { kind: 'chat', recruiter: recruiter || 'unknown', turns: messages.length + 1, at: new Date().toISOString() };
+    await logToBlobs(toRecord);
+    await logToNeon(toRecord, headerDb || process.env.NEON_DATABASE_URL);
     return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ role: 'assistant', content }) };
   } catch (err: any) {
     return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: err?.message || 'Internal error' }) };
