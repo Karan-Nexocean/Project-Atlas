@@ -1,6 +1,7 @@
 // Netlify Function: Wingman Chat
 import type { Handler } from '@netlify/functions';
 import { Groq } from 'groq-sdk';
+import { getStore } from '@netlify/blobs';
 
 function getRecruiterEmail(event: any, context: any): string | null {
   const idEmail = (context?.clientContext?.user as any)?.email as string | undefined;
@@ -26,6 +27,16 @@ async function logToSlack(text: string) {
   const hook = process.env.SLACK_WEBHOOK_URL || '';
   if (!hook) return;
   try { await fetch(hook, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text }) }); } catch {}
+}
+
+async function logToBlobs(event: Record<string, any>) {
+  try {
+    const store = getStore({ name: 'varuna-usage' });
+    const ts = new Date().toISOString();
+    const day = ts.slice(0, 10);
+    const id = `${ts}-${Math.random().toString(36).slice(2, 10)}`;
+    await store.setJSON(`${day}/${id}.json`, event);
+  } catch {}
 }
 
 export const handler: Handler = async (event, context) => {
@@ -59,9 +70,9 @@ export const handler: Handler = async (event, context) => {
 
     const content = (completion as any).choices?.[0]?.message?.content ?? '';
     logToSlack(`Varuna Chat • ${recruiter || 'unknown'} • turns=${messages.length + 1}`);
+    await logToBlobs({ kind: 'chat', recruiter: recruiter || 'unknown', turns: messages.length + 1, at: new Date().toISOString() });
     return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ role: 'assistant', content }) };
   } catch (err: any) {
     return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: err?.message || 'Internal error' }) };
   }
 };
-

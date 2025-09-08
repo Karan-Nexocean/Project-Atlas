@@ -86,6 +86,10 @@ export function useTaskPlanner() {
       })();
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (recruiter) headers['X-Recruiter-Email'] = recruiter;
+      try {
+        const { getAuthHeaders } = await import('../utils/identity');
+        Object.assign(headers, await getAuthHeaders());
+      } catch {}
       const resp = await fetch('/api/chat', {
         method: 'POST',
         headers,

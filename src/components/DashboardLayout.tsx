@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Menu, X, Target, UploadCloud, BarChart3, MessageSquare, Waves, ListTodo, Search, User } from 'lucide-react';
 import { IconBadge } from './IconBadge';
+import netlifyIdentity, { initIdentity, currentIdentityEmail } from '../utils/identity';
 
 type View = 'ask' | 'guide' | 'upload' | 'analysis' | 'tasks';
 
@@ -29,6 +30,23 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     try { return localStorage.getItem('varuna:recruiterEmail') || ''; } catch { return ''; }
   });
   const allowedDomain = (import.meta as any)?.env?.VITE_ALLOW_EMAIL_DOMAIN || '';
+
+  useEffect(() => {
+    initIdentity();
+    const onLogin = () => {
+      const e = currentIdentityEmail();
+      if (e) saveEmail(e);
+    };
+    netlifyIdentity.on('login', onLogin);
+    netlifyIdentity.on('logout', () => {
+      // keep manual email fallback, but you may clear it if you want stricter flows
+    });
+    return () => {
+      try {
+        netlifyIdentity.off('login', onLogin);
+      } catch {}
+    };
+  }, []);
 
   function saveEmail(next: string) {
     const v = next.trim();
@@ -154,6 +172,13 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             >
               <User className="w-4 h-4" />
               <span className="hidden sm:inline">{email ? email : 'Identify'}</span>
+            </button>
+            <button
+              onClick={() => netlifyIdentity.open()}
+              className="inline-flex items-center gap-2 rounded-lg bg-slate-800 text-white px-3 py-2 text-sm shadow-sm"
+              title="Sign in with Netlify Identity"
+            >
+              Sign in
             </button>
           </div>
         </div>

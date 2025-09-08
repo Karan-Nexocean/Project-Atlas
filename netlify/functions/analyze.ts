@@ -2,6 +2,7 @@
 // Mirrors the Vite dev middleware implementation, with optional domain gating and Slack logging.
 import type { Handler } from '@netlify/functions';
 import { Groq } from 'groq-sdk';
+import { getStore } from '@netlify/blobs';
 
 // Fallback JSON extractor (should be rare in JSON mode)
 function tryExtractJSONObject(text: string): any | null {
@@ -100,6 +101,16 @@ async function logToSlack(text: string) {
   try { await fetch(hook, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text }) }); } catch {}
 }
 
+async function logToBlobs(event: Record<string, any>) {
+  try {
+    const store = getStore({ name: 'varuna-usage' });
+    const ts = new Date().toISOString();
+    const day = ts.slice(0, 10); // YYYY-MM-DD
+    const id = `${ts}-${Math.random().toString(36).slice(2, 10)}`;
+    await store.setJSON(`${day}/${id}.json`, event);
+  } catch {}
+}
+
 export const handler: Handler = async (event, context) => {
   if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
   const allowDomain = process.env.ALLOW_EMAIL_DOMAIN || '';
@@ -112,7 +123,8 @@ export const handler: Handler = async (event, context) => {
     let resumeText = String(body.text || '');
     if (!resumeText && body.pdfBase64) {
       try {
-        const pdfParse = (await import('pdf-parse')).default as any;
+        // Use the core parser implementation to avoid test/debug paths
+        const pdfParse = (await import('pdf-parse/lib/pdf-parse.js')).default as any;
         const pdfBuf = Buffer.from(body.pdfBase64, 'base64');
         const parsed = await pdfParse(pdfBuf);
         resumeText = String(parsed?.text || '');
@@ -168,13 +180,22 @@ export const handler: Handler = async (event, context) => {
     const normalized = normalizeAnalysis(json);
 
     // Logging (no resume content)
-    const candidate = (JSON.parse(event.body || '{}')?.candidateName as string) || deriveCandidateNameFromFilename(JSON.parse(event.body || '{}')?.filename);
-    const msg = `Varuna Analyze • ${recruiter || 'unknown'} → ${candidate || JSON.parse(event.body || '{}')?.filename || 'unknown'} • score=${normalized.overallScore ?? 'n/a'} • len=${resumeText.length}`;
+    const rawBody = JSON.parse(event.body || '{}');
+    const candidate = (rawBody?.candidateName as string) || deriveCandidateNameFromFilename(rawBody?.filename);
+    const msg = `Varuna Analyze • ${recruiter || 'unknown'} → ${candidate || rawBody?.filename || 'unknown'} • score=${normalized.overallScore ?? 'n/a'} • len=${resumeText.length}`;
     logToSlack(msg);
+    await logToBlobs({
+      kind: 'analyze',
+      recruiter: recruiter || 'unknown',
+      filename: rawBody?.filename || null,
+      candidate: candidate || null,
+      overallScore: normalized.overallScore,
+      input: { type: rawBody?.pdfBase64 ? 'pdf' : (rawBody?.text ? 'text' : 'unknown'), length: resumeText.length },
+      at: new Date().toISOString(),
+    });
 
     return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(normalized) };
   } catch (err: any) {
     return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: err?.message || 'Internal error' }) };
   }
 };
-

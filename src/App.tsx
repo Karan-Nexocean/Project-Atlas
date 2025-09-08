@@ -105,9 +105,10 @@ function App() {
       const recruiter = (() => {
         try { return localStorage.getItem('varuna:recruiterEmail') || ''; } catch { return ''; }
       })();
+      const authHeaders = await (await import('./utils/identity')).getAuthHeaders();
       const resp = await fetch('/api/analyze', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...(recruiter ? { 'X-Recruiter-Email': recruiter } : {}) },
+        headers: { 'Content-Type': 'application/json', ...(recruiter ? { 'X-Recruiter-Email': recruiter } : {}), ...authHeaders },
         body: JSON.stringify({ ...payload, candidateName })
       });
       if (!resp.ok) {
