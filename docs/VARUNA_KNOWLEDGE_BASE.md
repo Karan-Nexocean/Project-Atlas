@@ -3,12 +3,12 @@
 Last updated: 2025‑09‑08
 
 ## Purpose & Positioning
-- Varuna is Wingman’s AI resume quality guardian. It analyzes resumes for completeness, clarity, ATS compatibility, and impact, then returns concrete improvements. The goal is consistent, client‑ready resumes and a faster path from screening to shortlist.
+- Varuna is Wingman’s AI resume quality guardian. It analyzes resumes for completeness, clarity, system fit (ATS parsing/readiness), and impact, then returns concrete improvements. The goal is consistent, client‑ready resumes and a faster path from screening to shortlist.
 - Audience: candidates (self‑improvement), recruiters (quality control), hiring managers (signal extraction), and internal teams (enablement, support).
 
 ## Core Capabilities
 - Resume analysis (PDF or text) → normalized JSON with scores and suggestions.
-- ATS optimization and industry‑specific tips.
+- System Fit (JSON: `atsOptimization`) and industry‑specific tips.
 - Interview Guide (structured preparation content inside the app).
 - Chat assistant (“Wingman Chat”) for quick questions and phrasing help.
 - Turn improvements into actionable tasks; estimate effort with AI or heuristics.
@@ -34,7 +34,7 @@ Last updated: 2025‑09‑08
 1) User uploads a resume (PDF or TXT) in the Upload view.
 2) Client converts PDF to base64 or forwards raw text → `POST /api/analyze`.
 3) Server extracts text (PDF), builds a system prompt, calls Groq in JSON mode, parses/normalizes output.
-4) Client renders Overall + Section scores, strengths, improvements, ATS/industry tips.
+4) Client renders Overall + Section scores, strengths, improvements, System Fit/industry tips.
 5) User generates tasks from suggestions, optionally asks Varuna to plan effort (via `/api/chat`).
 6) User exports a PDF report or copies a Markdown task list.
 
@@ -61,6 +61,7 @@ Last updated: 2025‑09‑08
 Notes:
 - Scores are integers. Suggestion arrays target 3–7 actionable bullets each.
 - Missing/empty fields are normalized to safe defaults (0 or []).
+- UI label mapping: the “System Fit” section in the product corresponds to the `atsOptimization` array in the JSON response.
 
 ## Section Rubrics (Scoring Criteria)
 

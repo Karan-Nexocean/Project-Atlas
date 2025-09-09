@@ -72,12 +72,11 @@ Tone
 - “Rewrite my summary for a Product Manager role (5–7 lines).”
 - “Turn these 6 suggestions into a 1‑week plan.”
 - “How do I run Varuna locally and export a PDF report?”
-- “What are the ATS pitfalls Varuna catches most often?”
+- “What are the System Fit (ATS) pitfalls Varuna catches most often?”
 
 ## Quick Reference (what the GPT should know)
 - App views: Interview Guide, Upload & Analyze, Analysis Results, Tasks, Ask Varuna (chat).
-- Analysis schema: overallScore; sections (contact, summary, experience, skills, education, formatting) with scores + suggestions; plus keyStrengths, criticalImprovements, atsOptimization, industrySpecific.
+- Analysis schema: overallScore; sections (contact, summary, experience, skills, education, formatting) with scores + suggestions; plus keyStrengths, criticalImprovements, atsOptimization, industrySpecific. In the UI, `atsOptimization` is labeled “System Fit”.
 - Dev endpoints: `POST /api/analyze`, `POST /api/chat` (Vite dev only). Requires `GROQ_API_KEY`.
 - Design tokens: turquoise‑forward palette in `src/index.css`; base font Satoshi.
 - Exports: PDF report (rich, multi‑page) and Markdown tasks.
-
