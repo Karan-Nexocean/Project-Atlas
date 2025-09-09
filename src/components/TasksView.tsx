@@ -74,7 +74,7 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onGenerateFromAnaly
   }, [tasks]);
 
   const toMarkdown = () => {
-    const lines: string[] = ['# Varuna Tasks'];
+    const lines: string[] = ['# Atlas Tasks'];
     grouped.forEach(([label, items]) => {
       lines.push(`\n## ${label}`);
       items.forEach((t) => {
@@ -99,7 +99,7 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onGenerateFromAnaly
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'varuna-tasks.md';
+    a.download = 'atlas-tasks.md';
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -136,7 +136,7 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onGenerateFromAnaly
           onClick={() => planTasks(tasks)}
           className="inline-flex items-center gap-2 px-3 py-2 rounded-lg btn-gradient text-white text-sm shadow-sm"
         >
-          {planning ? <Loader className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />} Plan with Varuna
+          {planning ? <Loader className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />} Plan with Atlas
         </button>
         <div className="ml-auto inline-flex items-center gap-1 rounded-xl bg-slate-100 p-1">
           <button

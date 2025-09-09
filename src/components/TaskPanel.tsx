@@ -91,7 +91,7 @@ export const TaskPanel: React.FC<TaskPanelProps> = ({ open, onClose, tasks, init
   };
 
   const toMarkdown = () => {
-    const lines: string[] = ['# Varuna Tasks'];
+    const lines: string[] = ['# Atlas Tasks'];
     grouped.forEach(([label, items]) => {
       lines.push(`\n## ${label}`);
       items.forEach((t) => {
@@ -116,7 +116,7 @@ export const TaskPanel: React.FC<TaskPanelProps> = ({ open, onClose, tasks, init
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'varuna-tasks.md';
+    a.download = 'atlas-tasks.md';
     a.click();
     URL.revokeObjectURL(url);
   };

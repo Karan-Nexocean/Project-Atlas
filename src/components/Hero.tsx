@@ -10,12 +10,12 @@ export const Hero: React.FC = () => {
           <h2 className="text-5xl md:text-6xl font-bold text-slate-800 mb-6">
             Your AI Resume
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-v-turquoise to-v-turquoise">
-              {' '}Varuna
+              {' '}Atlas
             </span>
           </h2>
           
           <p className="text-xl text-slate-600 mb-12 leading-relaxed">
-            Get instant, actionable feedback on your resume. Varuna analyzes your resume 
+            Get instant, actionable feedback on your resume. Atlas analyzes your resume 
             against industry standards and provides specific improvements to help you land your dream job.
           </p>
           

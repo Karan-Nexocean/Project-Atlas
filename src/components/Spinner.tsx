@@ -11,11 +11,10 @@ export const Spinner: React.FC<SpinnerProps> = ({ size = 56, className = '', lab
   const s = `${size}px`;
   return (
     <div className="relative inline-grid place-items-center" role="status" aria-live="polite" aria-label={label}>
-      <div className={`varuna-spinner ${className}`} style={{ ['--vs' as any]: s }} />
+      <div className={`atlas-spinner ${className}`} style={{ ['--vs' as any]: s }} />
       <span className="sr-only">{label}</span>
     </div>
   );
 };
 
 export default Spinner;
-

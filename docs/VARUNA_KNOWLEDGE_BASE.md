@@ -1,9 +1,9 @@
-# Varuna — Knowledge Base (Wingman · Nexocean)
+# Atlas — Knowledge Base (Wingman · Nexocean)
 
 Last updated: 2025‑09‑08
 
 ## Purpose & Positioning
-- Varuna is Wingman’s AI resume quality guardian. It analyzes resumes for completeness, clarity, system fit (ATS parsing/readiness), and impact, then returns concrete improvements. The goal is consistent, client‑ready resumes and a faster path from screening to shortlist.
+- Atlas is Wingman’s AI resume quality guardian. It analyzes resumes for completeness, clarity, system fit (ATS parsing/readiness), and impact, then returns concrete improvements. The goal is consistent, client‑ready resumes and a faster path from screening to shortlist.
 - Audience: candidates (self‑improvement), recruiters (quality control), hiring managers (signal extraction), and internal teams (enablement, support).
 
 ## Core Capabilities
@@ -35,7 +35,7 @@ Last updated: 2025‑09‑08
 2) Client converts PDF to base64 or forwards raw text → `POST /api/analyze`.
 3) Server extracts text (PDF), builds a system prompt, calls Groq in JSON mode, parses/normalizes output.
 4) Client renders Overall + Section scores, strengths, improvements, System Fit/industry tips.
-5) User generates tasks from suggestions, optionally asks Varuna to plan effort (via `/api/chat`).
+5) User generates tasks from suggestions, optionally asks Atlas to plan effort (via `/api/chat`).
 6) User exports a PDF report or copies a Markdown task list.
 
 ## Analysis Schema (Normalized)
@@ -159,7 +159,7 @@ Production note: these routes exist only under Vite dev. For production, deploy 
   - Obtain consent and avoid uploading sensitive identifiers if not needed.
   - Mask phone/email if testing; avoid secret data.
   - Rotate API keys if exposure is suspected; never commit real keys.
-- The app does not persist resumes or analyses server‑side by default; tasks are stored in `localStorage` (`varuna:tasks`).
+- The app does not persist resumes or analyses server‑side by default; tasks are stored in `localStorage` (`atlas:tasks`).
 
 ## Quality & Interpretation
 - Scores are rubric‑guided but LLM‑based; expect small variance. Use them to prioritize edits rather than as absolute truth.

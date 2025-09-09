@@ -143,7 +143,7 @@ async function logToSlack(text: string) {
 
 async function logToBlobs(event: Record<string, any>) {
   try {
-    const store = getStore({ name: 'varuna-usage' });
+    const store = getStore({ name: 'atlas-usage' });
     const ts = new Date().toISOString();
     const day = ts.slice(0, 10); // YYYY-MM-DD
     const id = `${ts}-${Math.random().toString(36).slice(2, 10)}`;
@@ -156,7 +156,7 @@ async function logToNeon(event: Record<string, any>, dbUrl?: string) {
   if (!url) return;
   try {
     const sql = neon(url);
-    await sql`create table if not exists varuna_usage (
+    await sql`create table if not exists atlas_usage (
       id text primary key,
       kind text not null,
       recruiter text,
@@ -169,7 +169,7 @@ async function logToNeon(event: Record<string, any>, dbUrl?: string) {
       created_at timestamptz default now()
     )`;
     const id = `${Date.now()}_${Math.random().toString(36).slice(2,10)}`;
-    await sql`insert into varuna_usage (id, kind, recruiter, filename, candidate, overall_score, input_type, input_length, turns)
+    await sql`insert into atlas_usage (id, kind, recruiter, filename, candidate, overall_score, input_type, input_length, turns)
               values (${id}, ${event.kind}, ${event.recruiter || null}, ${event.filename || null}, ${event.candidate || null}, ${event.overallScore || null}, ${event.input?.type || null}, ${event.input?.length || null}, ${event.turns || null})`;
   } catch {}
 }
@@ -210,7 +210,7 @@ export const handler: Handler = async (event, context) => {
     if (!apiKey) return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'GROQ_API_KEY is not set on server' }) };
 
     const groq = new Groq({ apiKey });
-    const systemPrompt = `You are a resume analysis engine. Output ONLY a single valid JSON object (no markdown, no backticks, no prose before or after). The JSON must strictly match this schema:\n\n{\n  "overallScore": number (0–100 integer),\n  "sections": {\n    "contact": { "score": 0–100 integer, "suggestions": string[] },\n    "summary": { "score": 0–100 integer, "suggestions": string[] },\n    "experience": { "score": 0–100 integer, "suggestions": string[] },\n    "skills": { "score": 0–100 integer, "suggestions": string[] },\n    "education": { "score": 0–100 integer, "suggestions": string[] },\n    "formatting": { "score": 0–100 integer, "suggestions": string[] },\n    "stability": { "score": 0–100 integer, "suggestions": string[] }\n  },\n  "keyStrengths": string[],\n  "criticalImprovements": string[],\n  "atsOptimization": string[],\n  "industrySpecific": string[]\n}\n\nRules:\n- Emit ONLY a JSON object. No code fences, no comments, no extra text.\n- All scores are integers 0–100.\n- Each suggestions array should contain 3–7 concise, actionable items.\n- Populate keyStrengths, criticalImprovements, atsOptimization, and industrySpecific with 3–7 concise bullets each when possible. Do not leave them empty if there is relevant evidence in the resume; if evidence is thin, generalize from the provided text without inventing facts.\n- Be specific and factual from the provided resume text; do not invent details.\n- If information is missing, lower the relevant score and add clear suggestions.\n- Avoid null/undefined; use empty arrays if needed.\n- Do not include trailing commas or non-JSON values (e.g., NaN, Infinity).\n- Formatting should assess spelling, grammar, punctuation, capitalization; consistent bullet style and tense/person; layout/whitespace, alignment, margins, section headings, fonts, page length; date formats and contact/link correctness. Flag typos explicitly.\n- Compute job stability: count distinct full-time roles in the last ~10 years (ignore internships, roles < 6 months, and internal promotions at the same employer). If only \u2264 3 years of history is visible, set a neutral stability score (~60) and suggest adding timeline details.\n- Map jobs-per-10-years to a stability score using these bins: 1 job \u2192 100 (Excellent), 2 \u2192 90 (Very Good), 3 \u2192 75 (Good), 4 \u2192 55 (OK), 5 \u2192 35 (Bad), 6+ \u2192 10 (Worst). If resume covers Y years < 10, scale jobs to a decade (jobs10 = jobs * 10 / Y) before binning.\n- Reflect stability in the overallScore as a meaningful factor (e.g., ~15% weight), alongside other quality dimensions.\n- Keep total output under the token limit.`;
+    const systemPrompt = `You are a resume analysis engine for Atlas. Output ONLY a single valid JSON object (no markdown, no backticks, no prose before or after). The JSON must strictly match this schema:\n\n{\n  "overallScore": number (0–100 integer),\n  "sections": {\n    "contact": { "score": 0–100 integer, "suggestions": string[] },\n    "summary": { "score": 0–100 integer, "suggestions": string[] },\n    "experience": { "score": 0–100 integer, "suggestions": string[] },\n    "skills": { "score": 0–100 integer, "suggestions": string[] },\n    "education": { "score": 0–100 integer, "suggestions": string[] },\n    "formatting": { "score": 0–100 integer, "suggestions": string[] },\n    "stability": { "score": 0–100 integer, "suggestions": string[] }\n  },\n  "keyStrengths": string[],\n  "criticalImprovements": string[],\n  "atsOptimization": string[],\n  "industrySpecific": string[]\n}\n\nRules:\n- Emit ONLY a JSON object. No code fences, no comments, no extra text.\n- All scores are integers 0–100.\n- Each suggestions array should contain 3–7 concise, actionable items.\n- Populate keyStrengths, criticalImprovements, atsOptimization, and industrySpecific with 3–7 concise bullets each when possible. Do not leave them empty if there is relevant evidence in the resume; if evidence is thin, generalize from the provided text without inventing facts.\n- Be specific and factual from the provided resume text; do not invent details.\n- If information is missing, lower the relevant score and add clear suggestions.\n- Avoid null/undefined; use empty arrays if needed.\n- Do not include trailing commas or non-JSON values (e.g., NaN, Infinity).\n- Formatting should assess spelling, grammar, punctuation, capitalization; consistent bullet style and tense/person; layout/whitespace, alignment, margins, section headings, fonts, page length; date formats and contact/link correctness. Flag typos explicitly.\n- Compute job stability: count distinct full-time roles in the last ~10 years (ignore internships, roles < 6 months, and internal promotions at the same employer). If only \u2264 3 years of history is visible, set a neutral stability score (~60) and suggest adding timeline details.\n- Map jobs-per-10-years to a stability score using these bins: 1 job \u2192 100 (Excellent), 2 \u2192 90 (Very Good), 3 \u2192 75 (Good), 4 \u2192 55 (OK), 5 \u2192 35 (Bad), 6+ \u2192 10 (Worst). If resume covers Y years < 10, scale jobs to a decade (jobs10 = jobs * 10 / Y) before binning.\n- Reflect stability in the overallScore as a meaningful factor (e.g., ~15% weight), alongside other quality dimensions.\n- Keep total output under the token limit.`;
 
     let completion: any;
     try {
@@ -252,7 +252,7 @@ export const handler: Handler = async (event, context) => {
     // Logging (no resume content)
     const rawBody = JSON.parse(event.body || '{}');
     const candidate = (rawBody?.candidateName as string) || deriveCandidateNameFromFilename(rawBody?.filename);
-    const msg = `Varuna Analyze • ${recruiter || 'unknown'} → ${candidate || rawBody?.filename || 'unknown'} • score=${normalized.overallScore ?? 'n/a'} • len=${resumeText.length}`;
+    const msg = `Atlas Analyze • ${recruiter || 'unknown'} → ${candidate || rawBody?.filename || 'unknown'} • score=${normalized.overallScore ?? 'n/a'} • len=${resumeText.length}`;
     logToSlack(msg);
     const toRecord = {
       kind: 'analyze',

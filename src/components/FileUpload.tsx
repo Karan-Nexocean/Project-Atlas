@@ -84,7 +84,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload, isAnalyzin
             <Spinner size={64} />
           </div>
           <h3 className="text-2xl font-bold text-slate-800 mb-2">Analyzing Your Resume</h3>
-          <p className="text-slate-600 mb-8">Varuna is examining your resume and preparing actionable insights...</p>
+          <p className="text-slate-600 mb-8">Atlas is examining your resume and preparing actionable insights...</p>
 
           {/* Smooth indeterminate progress */}
           <div className="progress-track rounded-full mb-8">
@@ -178,7 +178,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload, isAnalyzin
               onClick={handleAnalyze}
               className="w-full btn-gradient text-white py-4 px-8 rounded-xl font-semibold text-lg hover:opacity-95 transition-all duration-300 transform hover:scale-105 shadow-lg"
             >
-              Analyze with Varuna
+              Analyze with Atlas
             </button>
           </div>
         )}

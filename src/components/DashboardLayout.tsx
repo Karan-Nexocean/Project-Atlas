@@ -27,11 +27,11 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   const [mobileOpen, setMobileOpen] = useState(false);
   const [identityOpen, setIdentityOpen] = useState(false);
   const [email, setEmail] = useState<string>(() => {
-    try { return localStorage.getItem('varuna:recruiterEmail') || ''; } catch { return ''; }
+    try { return localStorage.getItem('atlas:recruiterEmail') || localStorage.getItem('varuna:recruiterEmail') || ''; } catch { return ''; }
   });
   const [groqKeyOpen, setGroqKeyOpen] = useState(false);
-  const [groqKey, setGroqKey] = useState<string>(() => { try { return localStorage.getItem('varuna:groqKey') || ''; } catch { return ''; } });
-  const [dbUrl, setDbUrl] = useState<string>(() => { try { return localStorage.getItem('varuna:dbUrl') || ''; } catch { return ''; } });
+  const [groqKey, setGroqKey] = useState<string>(() => { try { return localStorage.getItem('atlas:groqKey') || localStorage.getItem('varuna:groqKey') || ''; } catch { return ''; } });
+  const [dbUrl, setDbUrl] = useState<string>(() => { try { return localStorage.getItem('atlas:dbUrl') || localStorage.getItem('varuna:dbUrl') || ''; } catch { return ''; } });
   const allowedDomain = (import.meta as any)?.env?.VITE_ALLOW_EMAIL_DOMAIN || '';
 
   useEffect(() => {
@@ -57,19 +57,19 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       alert(`Email must end with @${allowedDomain}`);
       return;
     }
-    try { localStorage.setItem('varuna:recruiterEmail', v); } catch {}
+    try { localStorage.setItem('atlas:recruiterEmail', v); } catch {}
     setEmail(v);
     setIdentityOpen(false);
   }
   function saveGroqKey(next: string) {
     const v = next.trim();
-    try { localStorage.setItem('varuna:groqKey', v); } catch {}
+    try { localStorage.setItem('atlas:groqKey', v); } catch {}
     setGroqKey(v);
     setGroqKeyOpen(false);
   }
   function saveDbUrl(next: string) {
     const v = next.trim();
-    try { localStorage.setItem('varuna:dbUrl', v); } catch {}
+    try { localStorage.setItem('atlas:dbUrl', v); } catch {}
     setDbUrl(v);
     setGroqKeyOpen(false);
   }
@@ -114,11 +114,11 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       <div className="flex items-center gap-2 px-4 h-14 border-b border-slate-200">
         <img
           src="/logo/varuna-logo.png"
-          alt="Varuna logo"
+          alt="Atlas logo"
           className="h-8 w-auto select-none"
           draggable={false}
         />
-        <div className="text-base font-semibold text-slate-800">Varuna</div>
+        <div className="text-base font-semibold text-slate-800">Atlas</div>
       </div>
         <div className="p-3 space-y-1">
           <div className="px-2 text-xs uppercase tracking-wide text-slate-500">Workspace</div>
@@ -136,7 +136,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           icon={<ListTodo className="w-4 h-4" />}
           badge={tasksCount > 0 ? (tasksCount > 99 ? '99+' : tasksCount) : undefined}
         />
-        <NavItem id="ask" label="Ask Varuna" icon={<Search className="w-4 h-4" />} />
+        <NavItem id="ask" label="Ask Atlas" icon={<Search className="w-4 h-4" />} />
       </div>
       <div className="mt-auto p-3">
         <button
@@ -241,7 +241,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             <p className="text-sm text-slate-600 mb-4">
               {allowedDomain
                 ? `Only ${allowedDomain} emails are allowed.`
-                : 'Used to identify who is using Varuna (logged with each analysis).'}
+                : 'Used to identify who is using Atlas (logged with each analysis).'}
             </p>
             <input
               type="email"

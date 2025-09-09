@@ -35,26 +35,26 @@ function App() {
   const [tasksPlanToken, setTasksPlanToken] = useState<string | null>(null);
   const [candidateName, setCandidateName] = useState<string>('');
 
-  // Persist tasks in localStorage
+  // Persist tasks in localStorage (migrate Wingman -> Varuna -> Atlas)
   React.useEffect(() => {
     try {
-      // Prefer Varuna key; migrate from old Wingman key if present
+      // Prefer Atlas key; migrate from older keys if present
+      const savedAtlas = localStorage.getItem('atlas:tasks');
       const savedVaruna = localStorage.getItem('varuna:tasks');
       const savedWingman = localStorage.getItem('wingman:tasks');
-      const saved = savedVaruna || savedWingman;
+      const saved = savedAtlas || savedVaruna || savedWingman;
       if (saved) {
         const parsed = JSON.parse(saved) as TaskItem[];
         if (Array.isArray(parsed)) setTasks(parsed);
-        if (!savedVaruna && savedWingman) {
-          localStorage.setItem('varuna:tasks', savedWingman);
-        }
+        // Migrate forward to Atlas
+        if (!savedAtlas) localStorage.setItem('atlas:tasks', saved);
       }
     } catch {}
   }, []);
 
   React.useEffect(() => {
     try {
-      localStorage.setItem('varuna:tasks', JSON.stringify(tasks));
+      localStorage.setItem('atlas:tasks', JSON.stringify(tasks));
     } catch {}
   }, [tasks]);
 
@@ -87,7 +87,7 @@ function App() {
       setTasks([]);
       setTasksTransformToken(null);
       setTasksPlanToken(null);
-      try { localStorage.removeItem('varuna:tasks'); } catch {}
+      try { localStorage.removeItem('atlas:tasks'); localStorage.removeItem('varuna:tasks'); } catch {}
     } catch {}
     setIsAnalyzing(true);
     try {
@@ -111,11 +111,11 @@ function App() {
         payload = { text, filename: file.name };
       }
       const recruiter = (() => {
-        try { return localStorage.getItem('varuna:recruiterEmail') || ''; } catch { return ''; }
+        try { return localStorage.getItem('atlas:recruiterEmail') || localStorage.getItem('varuna:recruiterEmail') || ''; } catch { return ''; }
       })();
       const authHeaders = await (await import('./utils/identity')).getAuthHeaders();
-      const groqKey = (() => { try { return localStorage.getItem('varuna:groqKey') || ''; } catch { return ''; } })();
-      const dbUrl = (() => { try { return localStorage.getItem('varuna:dbUrl') || ''; } catch { return ''; } })();
+      const groqKey = (() => { try { return localStorage.getItem('atlas:groqKey') || localStorage.getItem('varuna:groqKey') || ''; } catch { return ''; } })();
+      const dbUrl = (() => { try { return localStorage.getItem('atlas:dbUrl') || localStorage.getItem('varuna:dbUrl') || ''; } catch { return ''; } })();
       const resp = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...(recruiter ? { 'X-Recruiter-Email': recruiter } : {}), ...(groqKey ? { 'X-Groq-Key': groqKey } : {}), ...(dbUrl ? { 'X-Db-Url': dbUrl } : {}), ...authHeaders },
@@ -265,7 +265,7 @@ function App() {
 
   const pageTitle =
     currentView === 'ask'
-      ? 'Ask Varuna'
+      ? 'Ask Atlas'
       : currentView === 'guide'
       ? 'Interview Guide'
       : currentView === 'upload'

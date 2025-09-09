@@ -39,7 +39,7 @@
   }
 }
 
-/* Varuna color tokens */
+/* Atlas color tokens */
 :root {
   /* Visual Design System: Offblack, Paper White, True Turquoise */
   --v-offblack: 17 24 39;       /* #111827 */
@@ -72,11 +72,11 @@
 
 /* Neumorphism helpers */
 @layer components {
-  /* Varuna Spinner */
+  /* Atlas Spinner */
   @keyframes spin360 {
     to { transform: rotate(360deg); }
   }
-  .varuna-spinner {
+  .atlas-spinner {
     position: relative;
     display: inline-block;
     width: var(--vs, 3rem);
@@ -94,7 +94,7 @@
     animation: spin360 .9s linear infinite;
     will-change: transform;
   }
-  .varuna-spinner::after {
+  .atlas-spinner::after {
     content: '';
     position: absolute;
     inset: 0;
@@ -103,7 +103,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .varuna-spinner { animation-duration: 1.6s; }
+    .atlas-spinner { animation-duration: 1.6s; }
   }
 
   /* Smooth progress (determinate + indeterminate) */

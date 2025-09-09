@@ -256,17 +256,17 @@ export const InterviewGuide: React.FC<InterviewGuideProps> = ({ onStartAnalysis 
         <h1 className="text-5xl md:text-6xl font-extrabold text-slate-800 tracking-tight mb-2 flex items-center justify-center">
           <img
             src="/logo/varuna-logo.png"
-            alt="Varuna logo"
+            alt="Atlas logo"
             className="h-20 w-20 md:h-24 md:w-24"
           />
-          <span className="sr-only">Varuna</span>
+          <span className="sr-only">Atlas</span>
         </h1>
         <div className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-600 bg-clip-text text-transparent mb-6">
           The Guardian of Resume Quality
         </div>
         <div className="max-w-3xl mx-auto">
           <p className="text-xl text-slate-600 leading-relaxed mb-6">
-            Varuna is WINGMAN AI-powered tool designed to score and evaluate the quality of candidate resumes with precision. Inspired by the Vedic guardian of oceans and order, Varuna ensures that only the most relevant, complete, and well‑structured profiles flow forward to clients.
+            Atlas is WINGMAN AI-powered tool designed to score and evaluate the quality of candidate resumes with precision.
           </p>
           <ul className="text-left max-w-2xl md:max-w-3xl mx-auto space-y-3 mb-6">
             <li className="flex items-start gap-3 text-slate-700">
@@ -283,12 +283,12 @@ export const InterviewGuide: React.FC<InterviewGuideProps> = ({ onStartAnalysis 
             </li>
           </ul>
           <p className="text-slate-600 text-lg mb-8">
-            With Varuna, every resume becomes a reflection of excellence, truth, and readiness — helping Wingman maintain consistency and ensuring clients receive only the best.
+            With Atlas, every resume becomes a reflection of excellence, truth, and readiness — helping Wingman maintain consistency and ensuring clients receive only the best.
           </p>
         </div>
         <div className="rounded-xl p-6 border border-slate-200 bg-white shadow-none max-w-2xl mx-auto">
           <p className="text-slate-700 font-medium">
-            Follow this guide step-by-step, then use Varuna to optimize your resume for maximum impact
+            Follow this guide step-by-step, then use Atlas to optimize your resume for maximum impact
           </p>
         </div>
       </div>
@@ -384,14 +384,14 @@ export const InterviewGuide: React.FC<InterviewGuideProps> = ({ onStartAnalysis 
           </div>
           <h3 className="text-3xl font-bold mb-4">Ready to Optimize Your Resume?</h3>
           <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
-            Now that you understand what Nexocean looks for, let Varuna analyze your resume 
+            Now that you understand what Nexocean looks for, let Atlas analyze your resume 
             and provide specific, actionable improvements to help you succeed.
           </p>
           <button
             onClick={onStartAnalysis}
             className="bg-white text-v-turquoise px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2 mx-auto"
           >
-            <span>Start Resume Analysis with Varuna</span>
+            <span>Start Resume Analysis with Atlas</span>
             <ArrowRight className="w-5 h-5" />
           </button>
         </div>
@@ -409,7 +409,7 @@ export const InterviewGuide: React.FC<InterviewGuideProps> = ({ onStartAnalysis 
               <ul className="space-y-1">
                 <li>• Careers / Roles</li>
                 <li>• Interview Process FAQ</li>
-                <li>• Resume & Metrics Guide (Varuna)</li>
+                <li>• Resume & Metrics Guide (Atlas)</li>
               </ul>
             </div>
             <div>

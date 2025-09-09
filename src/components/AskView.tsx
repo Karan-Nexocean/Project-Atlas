@@ -24,7 +24,7 @@ export const AskView: React.FC<AskViewProps> = () => {
     setAnswer(null);
     try {
       const recruiter = (() => {
-        try { return localStorage.getItem('varuna:recruiterEmail') || ''; } catch { return ''; }
+        try { return localStorage.getItem('atlas:recruiterEmail') || localStorage.getItem('varuna:recruiterEmail') || ''; } catch { return ''; }
       })();
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (recruiter) headers['X-Recruiter-Email'] = recruiter;
@@ -33,11 +33,11 @@ export const AskView: React.FC<AskViewProps> = () => {
         Object.assign(headers, await getAuthHeaders());
       } catch {}
       try {
-        const g = localStorage.getItem('varuna:groqKey') || '';
+        const g = localStorage.getItem('atlas:groqKey') || localStorage.getItem('varuna:groqKey') || '';
         if (g) headers['X-Groq-Key'] = g;
       } catch {}
       try {
-        const db = localStorage.getItem('varuna:dbUrl') || '';
+        const db = localStorage.getItem('atlas:dbUrl') || localStorage.getItem('varuna:dbUrl') || '';
         if (db) headers['X-Db-Url'] = db;
       } catch {}
       const resp = await fetch('/api/chat', {
@@ -121,10 +121,10 @@ export const AskView: React.FC<AskViewProps> = () => {
             onChange={(e) => setQuery(e.target.value)}
             className="w-full bg-transparent outline-none text-base md:text-lg px-2 py-2 text-slate-800 placeholder-slate-400"
             placeholder="Ask anything..."
-            aria-label="Ask Varuna"
+            aria-label="Ask Atlas"
           />
           <div className="flex items-center justify-between px-2 pt-2">
-            <div className="text-xs text-slate-500">Varuna keeps it concise and practical.</div>
+            <div className="text-xs text-slate-500">Atlas keeps it concise and practical.</div>
             <button
               type="submit"
               disabled={loading || query.trim().length === 0}

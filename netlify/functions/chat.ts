@@ -32,7 +32,7 @@ async function logToSlack(text: string) {
 
 async function logToBlobs(event: Record<string, any>) {
   try {
-    const store = getStore({ name: 'varuna-usage' });
+    const store = getStore({ name: 'atlas-usage' });
     const ts = new Date().toISOString();
     const day = ts.slice(0, 10);
     const id = `${ts}-${Math.random().toString(36).slice(2, 10)}`;
@@ -45,7 +45,7 @@ async function logToNeon(event: Record<string, any>, dbUrl?: string) {
   if (!url) return;
   try {
     const sql = neon(url);
-    await sql`create table if not exists varuna_usage (
+    await sql`create table if not exists atlas_usage (
       id text primary key,
       kind text not null,
       recruiter text,
@@ -58,7 +58,7 @@ async function logToNeon(event: Record<string, any>, dbUrl?: string) {
       created_at timestamptz default now()
     )`;
     const id = `${Date.now()}_${Math.random().toString(36).slice(2,10)}`;
-    await sql`insert into varuna_usage (id, kind, recruiter, filename, candidate, overall_score, input_type, input_length, turns)
+    await sql`insert into atlas_usage (id, kind, recruiter, filename, candidate, overall_score, input_type, input_length, turns)
               values (${id}, ${event.kind}, ${event.recruiter || null}, null, null, null, null, null, ${event.turns || null})`;
   } catch {}
 }
@@ -84,7 +84,7 @@ export const handler: Handler = async (event, context) => {
     if (!apiKey) return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'GROQ_API_KEY is not set on server' }) };
     const groq = new Groq({ apiKey });
 
-    const systemPrompt = `You are Wingman — Nexocean’s digital mascot — assisting users inside Varuna, our resume analysis tool, embedded in a React + Vite + Tailwind app.\n\nContext you know about this project:\n- Name: Varuna — Resume Analyzer (tool under Wingman; company: Nexocean). Includes Interview Guide + AI Resume Analysis views.\n- Design: Tailwind CSS, brand tokens via CSS variables ( --brand-blue, --brand-coral, --brand-butter, --brand-lavender, --brand-cream ). Base font is Satoshi.\n- Resume analysis schema with sections: contact, summary, experience, skills, education, formatting, stability; overallScore 0–100; concrete, actionable suggestions.\n- Users can upload text or PDF resumes; PDFs are parsed server-side. The app normalizes analysis into a strict shape before rendering.\n\nPersonality and style:\n- Be upbeat, clear, and helpful. Default to 2–6 concise sentences.\n- Prefer concrete guidance: strong verbs, quantified impact, ATS-friendly keywords, succinct bullet structure (STAR/XYZ style).\n- When suggesting UI/code changes here, use Tailwind-appropriate classes and the brand tokens above.\n- If a user asks for analysis, you can advise generally, but only claim detailed analysis after they upload a resume to the app. No fabrications.\n- Offer a brief follow-up question when useful.\n\nOperating rules:\n- Do not claim to read local files or external links you were not given in the chat.\n- Keep examples short and copy-pastable.\n- American English. No sensitive personal data.`;
+    const systemPrompt = `You are Wingman — Nexocean’s digital mascot — assisting users inside Atlas, our resume analysis tool, embedded in a React + Vite + Tailwind app.\n\nContext you know about this project:\n- Name: Atlas — Resume Analyzer (tool under Wingman; company: Nexocean). Includes Interview Guide + AI Resume Analysis views.\n- Design: Tailwind CSS, brand tokens via CSS variables ( --brand-blue, --brand-coral, --brand-butter, --brand-lavender, --brand-cream ). Base font is Satoshi.\n- Resume analysis schema with sections: contact, summary, experience, skills, education, formatting, stability; overallScore 0–100; concrete, actionable suggestions.\n- Users can upload text or PDF resumes; PDFs are parsed server-side. The app normalizes analysis into a strict shape before rendering.\n\nPersonality and style:\n- Be upbeat, clear, and helpful. Default to 2–6 concise sentences.\n- Prefer concrete guidance: strong verbs, quantified impact, ATS-friendly keywords, succinct bullet structure (STAR/XYZ style).\n- When suggesting UI/code changes here, use Tailwind-appropriate classes and the brand tokens above.\n- If a user asks for analysis, you can advise generally, but only claim detailed analysis after they upload a resume to the app. No fabrications.\n- Offer a brief follow-up question when useful.\n\nOperating rules:\n- Do not claim to read local files or external links you were not given in the chat.\n- Keep examples short and copy-pastable.\n- American English. No sensitive personal data.`;
 
     const completion = await groq.chat.completions.create({
       model: 'openai/gpt-oss-120b',
@@ -100,7 +100,7 @@ export const handler: Handler = async (event, context) => {
     } as any);
 
     const content = (completion as any).choices?.[0]?.message?.content ?? '';
-    logToSlack(`Varuna Chat • ${recruiter || 'unknown'} • turns=${messages.length + 1}`);
+    logToSlack(`Atlas Chat • ${recruiter || 'unknown'} • turns=${messages.length + 1}`);
     const toRecord = { kind: 'chat', recruiter: recruiter || 'unknown', turns: messages.length + 1, at: new Date().toISOString() };
     await logToBlobs(toRecord);
     await logToNeon(toRecord, headerDb || process.env.NEON_DATABASE_URL);

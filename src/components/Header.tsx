@@ -15,7 +15,7 @@ export const Header: React.FC<{ onOpenChat?: () => void }> = ({ onOpenChat }) =>
               <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-slate-800">Varuna</h1>
+              <h1 className="text-2xl font-bold text-slate-800">Atlas</h1>
               <p className="text-sm text-slate-600">Resume Analysis by Wingman · Nexocean</p>
             </div>
           </div>

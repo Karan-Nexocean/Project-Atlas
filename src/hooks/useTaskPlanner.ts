@@ -82,7 +82,7 @@ export function useTaskPlanner() {
           tasks.map((t) => `- [${t.source.kind}${t.source.kind==='section'?'/'+t.source.section:''}] ${t.text}`).join('\n'),
       };
       const recruiter = (() => {
-        try { return localStorage.getItem('varuna:recruiterEmail') || ''; } catch { return ''; }
+        try { return localStorage.getItem('atlas:recruiterEmail') || localStorage.getItem('varuna:recruiterEmail') || ''; } catch { return ''; }
       })();
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (recruiter) headers['X-Recruiter-Email'] = recruiter;
@@ -91,11 +91,11 @@ export function useTaskPlanner() {
         Object.assign(headers, await getAuthHeaders());
       } catch {}
       try {
-        const g = localStorage.getItem('varuna:groqKey') || '';
+        const g = localStorage.getItem('atlas:groqKey') || localStorage.getItem('varuna:groqKey') || '';
         if (g) headers['X-Groq-Key'] = g;
       } catch {}
       try {
-        const db = localStorage.getItem('varuna:dbUrl') || '';
+        const db = localStorage.getItem('atlas:dbUrl') || localStorage.getItem('varuna:dbUrl') || '';
         if (db) headers['X-Db-Url'] = db;
       } catch {}
       const resp = await fetch('/api/chat', {

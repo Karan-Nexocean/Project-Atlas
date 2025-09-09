@@ -28,7 +28,7 @@ export default {
         'brand-butter': 'rgb(var(--brand-butter) / <alpha-value>)',
         'brand-lavender': 'rgb(var(--brand-lavender) / <alpha-value>)',
         'brand-cream': 'rgb(var(--brand-cream) / <alpha-value>)',
-        // Varuna palette
+        // Atlas palette
         'v-offblack': 'rgb(var(--v-offblack) / <alpha-value>)',
         'v-paper': 'rgb(var(--v-paper) / <alpha-value>)',
         'v-turquoise': 'rgb(var(--v-turquoise) / <alpha-value>)',

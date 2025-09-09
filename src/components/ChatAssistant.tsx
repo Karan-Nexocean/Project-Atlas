@@ -14,7 +14,7 @@ export const ChatAssistant: React.FC<ChatAssistantProps> = ({ open, onClose }) =
     {
       role: 'assistant',
       content:
-        "Hey! I’m Wingman — your co‑pilot inside Varuna (by Nexocean). Ask me anything about ATS optimization, bullet phrasing, or how this app evaluates resumes.",
+        "Hey! I’m Wingman — your co‑pilot inside Atlas (by Nexocean). Ask me anything about System Fit (ATS), bullet phrasing, or how this app evaluates resumes.",
     },
   ]);
   const [input, setInput] = useState('');
@@ -36,7 +36,7 @@ export const ChatAssistant: React.FC<ChatAssistantProps> = ({ open, onClose }) =
     setSending(true);
     try {
       const recruiter = (() => {
-        try { return localStorage.getItem('varuna:recruiterEmail') || ''; } catch { return ''; }
+        try { return localStorage.getItem('atlas:recruiterEmail') || localStorage.getItem('varuna:recruiterEmail') || ''; } catch { return ''; }
       })();
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (recruiter) headers['X-Recruiter-Email'] = recruiter;
@@ -45,11 +45,11 @@ export const ChatAssistant: React.FC<ChatAssistantProps> = ({ open, onClose }) =
         Object.assign(headers, await getAuthHeaders());
       } catch {}
       try {
-        const g = localStorage.getItem('varuna:groqKey') || '';
+        const g = localStorage.getItem('atlas:groqKey') || localStorage.getItem('varuna:groqKey') || '';
         if (g) headers['X-Groq-Key'] = g;
       } catch {}
       try {
-        const db = localStorage.getItem('varuna:dbUrl') || '';
+        const db = localStorage.getItem('atlas:dbUrl') || localStorage.getItem('varuna:dbUrl') || '';
         if (db) headers['X-Db-Url'] = db;
       } catch {}
       const resp = await fetch('/api/chat', {

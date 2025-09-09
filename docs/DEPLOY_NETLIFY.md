@@ -1,4 +1,4 @@
-# Deploying Varuna on Netlify (Production)
+# Deploying Atlas on Netlify (Production)
 
 This guide sets up Netlify as hosting + serverless API with zero-DB auth and usage logging. It keeps your frontend code unchanged by routing /api/* to Netlify Functions.
 
@@ -40,13 +40,13 @@ How it works with functions:
 Note: The static UI itself is public by default. Identity protects your function calls (the real data). To force UI login flows, add the netlify-identity-widget package and request a token before calling /api/*.
 
 ## 5) Domain
-- Default domain is <site-name>.netlify.app. Choose a site name like varuna to get https://varuna.netlify.app.
+- Default domain is <site-name>.netlify.app. Choose a site name like atlas to get https://atlas.netlify.app.
 - To change: Site settings → Domain management → Primary domain → Edit site name.
 
 ## 6) Usage logging (no DB)
 - Each analyze and chat call posts a single-line event to Slack (no resume content). Example:
-  - Varuna Analyze • recruiter@yourcompany.com → Jane Doe • score=78 • len=8421
-- This gives you an audit trail of who used Varuna for which candidate with zero storage.
+  - Atlas Analyze • recruiter@yourcompany.com → Jane Doe • score=78 • len=8421
+- This gives you an audit trail of who used Atlas for which candidate with zero storage.
 
 ## 7) Frontend behavior (unchanged)
 - The app continues to call /api/analyze and /api/chat.

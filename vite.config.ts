@@ -221,13 +221,13 @@ Rules:
             result: { overallScore: normalized?.overallScore },
             at: new Date().toISOString(),
           };
-          logToSlack(`Varuna Analyze • ${event.recruiter} → ${event.candidate || event.filename} • score=${event.result.overallScore ?? 'n/a'} • len=${event.input.length}`);
+          logToSlack(`Atlas Analyze • ${event.recruiter} → ${event.candidate || event.filename} • score=${event.result.overallScore ?? 'n/a'} • len=${event.input.length}`);
         } catch (err: any) {
           res.statusCode = 500;
           res.end(JSON.stringify({ error: err?.message || 'Internal error' }));
         }
       });
-      // Simple chat endpoint for the Wingman assistant (inside Varuna)
+      // Simple chat endpoint for the Wingman assistant (inside Atlas)
       server.middlewares.use('/api/chat', async (req, res) => {
         try {
           const auth = checkAuthOrReject(req, res);
@@ -253,10 +253,10 @@ Rules:
           }
           const groq = new Groq({ apiKey });
 
-          const systemPrompt = `You are Wingman — Nexocean’s digital mascot — assisting users inside Varuna, our resume analysis tool, embedded in a React + Vite + Tailwind app.
+          const systemPrompt = `You are Wingman — Nexocean’s digital mascot — assisting users inside Atlas, our resume analysis tool, embedded in a React + Vite + Tailwind app.
 
 Context you know about this project:
-- Name: Varuna — Resume Analyzer (tool under Wingman; company: Nexocean). Includes Interview Guide + AI Resume Analysis views.
+- Name: Atlas — Resume Analyzer (tool under Wingman; company: Nexocean). Includes Interview Guide + AI Resume Analysis views.
 - Design: Tailwind CSS, brand tokens via CSS variables ( --brand-blue, --brand-coral, --brand-butter, --brand-lavender, --brand-cream ). Base font is Satoshi.
 - Resume analysis schema with sections: contact, summary, experience, skills, education, formatting, stability; overallScore 0–100; concrete, actionable suggestions.
 - Users can upload text or PDF resumes; PDFs are parsed server-side. The app normalizes analysis into a strict shape before rendering.
@@ -300,7 +300,7 @@ Operating rules:
             turns: (history || []).length + 1,
             at: new Date().toISOString(),
           };
-          logToSlack(`Varuna Chat • ${event.recruiter} • turns=${event.turns}`);
+          logToSlack(`Atlas Chat • ${event.recruiter} • turns=${event.turns}`);
         } catch (err: any) {
           res.statusCode = 500;
           res.end(JSON.stringify({ error: err?.message || 'Internal error' }));

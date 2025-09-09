@@ -1,4 +1,4 @@
-# Varuna — Resume Analyzer (Wingman | Nexocean)
+# Atlas — Resume Analyzer (Wingman | Nexocean)
 
 A React + Vite + TypeScript + Tailwind app that analyzes resumes with Groq. Includes:
 - Upload & analyze (PDF/text) → structured scoring + suggestions

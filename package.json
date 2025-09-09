@@ -2,7 +2,7 @@
   "name": "vite-react-typescript-starter",
   "private": true,
   "version": "0.0.0",
-  "description": "Resume Analyser by Varuna",
+  "description": "Resume Analyzer by Atlas",
   "type": "module",
   "engines": {
     "node": ">=18.0.0"

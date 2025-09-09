@@ -151,9 +151,9 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, cand
 
       {/* Action Items */}
       <div className="btn-gradient rounded-2xl p-8 mt-12 text-white text-center" data-html2canvas-ignore>
-        <h3 className="text-2xl font-bold mb-4">Ask Varuna to plan your tasks?</h3>
+        <h3 className="text-2xl font-bold mb-4">Ask Atlas to plan your tasks?</h3>
         <p className="mb-6 opacity-90">
-          Varuna can help you to implement these suggestions and increase your chance of landing you interviews
+          Atlas can help you implement these suggestions and increase your chance of landing interviews
         </p>
         <div className="flex justify-center">
           <button
@@ -161,7 +161,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, cand
             className="bg-white/10 border-2 border-white/60 text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-v-turquoise transition-colors"
             data-html2canvas-ignore="true"
           >
-            Ask Varuna to Plan Tasks
+            Ask Atlas to Plan Tasks
           </button>
         </div>
       </div>
@@ -186,7 +186,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, cand
             <button
               onClick={async () => {
                 const headerName = (reportName || candidateName || '').trim();
-                const baseFile = headerName ? `${headerName} - Varuna Resume Analysis.pdf` : 'varuna-resume-analysis.pdf';
+                const baseFile = headerName ? `${headerName} - Atlas Resume Analysis.pdf` : 'atlas-resume-analysis.pdf';
                 setNameModalOpen(false);
                 if (exportRef.current) {
               try {
