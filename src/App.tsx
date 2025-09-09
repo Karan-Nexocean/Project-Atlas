@@ -181,16 +181,54 @@ function App() {
         stability: section(sections.stability),
       },
       keyStrengths: arr(
-        pick(raw, ['keyStrengths', 'key_strengths', 'insights.keyStrengths', 'insights.key_strengths'])
+        pick(raw, [
+          'keyStrengths',
+          'key_strengths',
+          'insights.keyStrengths',
+          'insights.key_strengths',
+          'strengths',
+          'topStrengths',
+          'insights.strengths',
+        ])
       ),
       criticalImprovements: arr(
-        pick(raw, ['criticalImprovements', 'critical_improvements', 'insights.criticalImprovements', 'insights.critical_improvements'])
+        pick(raw, [
+          'criticalImprovements',
+          'critical_improvements',
+          'insights.criticalImprovements',
+          'insights.critical_improvements',
+          'improvements',
+          'majorImprovements',
+          'criticalFixes',
+          'insights.improvements',
+          'gaps',
+          'weaknesses',
+        ])
       ),
       atsOptimization: arr(
-        pick(raw, ['atsOptimization', 'ats_optimization', 'atsOptimizationTips', 'tips.atsOptimization'])
+        pick(raw, [
+          'atsOptimization',
+          'ats_optimization',
+          'atsOptimizationTips',
+          'tips.atsOptimization',
+          'atsOptimisation',
+          'ats_optimisation',
+          'tips.atsOptimisation',
+          'ats',
+          'atsTips',
+          'tips.ats',
+        ])
       ),
       industrySpecific: arr(
-        pick(raw, ['industrySpecific', 'industry_specific', 'industrySpecificTips', 'tips.industrySpecific'])
+        pick(raw, [
+          'industrySpecific',
+          'industry_specific',
+          'industrySpecificTips',
+          'tips.industrySpecific',
+          'industryTips',
+          'tips.industry',
+          'sectorSpecific',
+        ])
       ),
     };
     return normalized;

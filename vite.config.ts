@@ -143,6 +143,7 @@ Rules:
 - Emit ONLY a JSON object. No code fences, no comments, no extra text.
 - All scores are integers 0–100.
 - Each suggestions array should contain 3–7 concise, actionable items.
+- Populate keyStrengths, criticalImprovements, atsOptimization, and industrySpecific with 3–7 concise bullets each when possible. Do not leave them empty if there is relevant evidence in the resume; if evidence is thin, generalize from the provided text without inventing facts.
 - Be specific and factual from the provided resume text; do not invent details.
 - If information is missing, lower the relevant score and add clear suggestions.
 - Avoid null/undefined; use empty arrays if needed.
@@ -384,16 +385,54 @@ function normalizeAnalysis(raw: any) {
       stability: section(sections.stability),
     },
     keyStrengths: arr(
-      pick(raw, ['keyStrengths', 'key_strengths', 'insights.keyStrengths', 'insights.key_strengths'])
+      pick(raw, [
+        'keyStrengths',
+        'key_strengths',
+        'insights.keyStrengths',
+        'insights.key_strengths',
+        'strengths',
+        'topStrengths',
+        'insights.strengths',
+      ])
     ),
     criticalImprovements: arr(
-      pick(raw, ['criticalImprovements', 'critical_improvements', 'insights.criticalImprovements', 'insights.critical_improvements'])
+      pick(raw, [
+        'criticalImprovements',
+        'critical_improvements',
+        'insights.criticalImprovements',
+        'insights.critical_improvements',
+        'improvements',
+        'majorImprovements',
+        'criticalFixes',
+        'insights.improvements',
+        'gaps',
+        'weaknesses',
+      ])
     ),
     atsOptimization: arr(
-      pick(raw, ['atsOptimization', 'ats_optimization', 'atsOptimizationTips', 'tips.atsOptimization'])
+      pick(raw, [
+        'atsOptimization',
+        'ats_optimization',
+        'atsOptimizationTips',
+        'tips.atsOptimization',
+        'atsOptimisation',
+        'ats_optimisation',
+        'tips.atsOptimisation',
+        'ats',
+        'atsTips',
+        'tips.ats',
+      ])
     ),
     industrySpecific: arr(
-      pick(raw, ['industrySpecific', 'industry_specific', 'industrySpecificTips', 'tips.industrySpecific'])
+      pick(raw, [
+        'industrySpecific',
+        'industry_specific',
+        'industrySpecificTips',
+        'tips.industrySpecific',
+        'industryTips',
+        'tips.industry',
+        'sectorSpecific',
+      ])
     ),
   };
 }
