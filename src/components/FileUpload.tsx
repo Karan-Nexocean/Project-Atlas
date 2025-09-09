@@ -184,8 +184,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload, isAnalyzin
         )}
       </div>
 
-      <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4 text-center text-sm text-slate-500">
-        <div>ATS Compatibility</div>
+      <div className="mt-8 grid grid-cols-2 md:grid-cols-3 gap-4 text-center text-sm text-slate-500">
         <div>Industry Standards</div>
         <div>Keyword Optimization</div>
         <div>Actionable Insights</div>
