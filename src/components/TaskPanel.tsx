@@ -25,7 +25,7 @@ function sourceLabel(src: TaskSource): string {
     case 'critical':
       return 'Critical Improvements';
     case 'ats':
-      return 'ATS Optimization';
+      return 'System Fit';
     case 'industry':
       return 'Industry-Specific';
     case 'section':
@@ -41,7 +41,7 @@ export const TaskPanel: React.FC<TaskPanelProps> = ({ open, onClose, tasks, init
     'Reading analysis data...',
     'Aggregating section suggestions...',
     'Merging critical improvements...',
-    'Applying ATS guidance...',
+    'Applying system-fit guidance...',
     'Preparing actionable tasks...'
   ];
 

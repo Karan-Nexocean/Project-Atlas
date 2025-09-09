@@ -48,7 +48,7 @@ function heuristicPlan(tasks: TaskItem[]): TaskPlan {
     } else if (kind === 'critical') {
       up('Critical Improvements', 1.5);
     } else if (kind === 'ats') {
-      up('ATS Optimization', 1.2);
+      up('System Fit', 1.2);
     } else if (kind === 'industry') {
       up('Industry-Specific', 1);
     }

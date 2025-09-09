@@ -316,7 +316,7 @@ export async function generateReportPDF(analysis: ResumeAnalysis, header?: Heade
 
     addListBlock('Key Strengths', analysis.keyStrengths);
     addListBlock('Critical Improvements', analysis.criticalImprovements);
-    addListBlock('ATS Optimization', analysis.atsOptimization);
+    addListBlock('System Fit', analysis.atsOptimization);
     addListBlock('Industry-Specific Tips', analysis.industrySpecific);
 
     // Detailed recommendations by section (all suggestions)
@@ -403,7 +403,7 @@ function buildMarkdownReport(analysis: ResumeAnalysis): string {
     lines.push('');
   }
   if (analysis.atsOptimization?.length) {
-    lines.push('## ATS Optimization');
+    lines.push('## System Fit');
     analysis.atsOptimization.forEach((s) => lines.push(`- ${s}`));
     lines.push('');
   }
@@ -778,7 +778,7 @@ async function generateTextReportPDF(analysis: ResumeAnalysis) {
 
   addList('Key Strengths', analysis.keyStrengths);
   addList('Critical Improvements', analysis.criticalImprovements);
-  addList('ATS Optimization', analysis.atsOptimization);
+  addList('System Fit', analysis.atsOptimization);
   addList('Industry-Specific Tips', analysis.industrySpecific);
 
   // Complete list per section (limit to 5 suggestions each)

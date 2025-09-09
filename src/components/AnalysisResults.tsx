@@ -134,7 +134,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, cand
         {/* Detailed Recommendations */}
         <div className="grid lg:grid-cols-2 gap-8">
           <SuggestionCard
-            title="ATS Optimization"
+            title="System Fit"
             icon={<Waves className="w-6 h-6" />}
             items={analysis.atsOptimization}
             variant="info"

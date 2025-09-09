@@ -20,7 +20,7 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onGenerateFromAnaly
     'Reading analysis data...',
     'Aggregating section suggestions...',
     'Merging critical improvements...',
-    'Applying ATS guidance...',
+    'Applying system-fit guidance...',
     'Preparing actionable tasks...'
   ];
 
@@ -58,7 +58,7 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onGenerateFromAnaly
         case 'critical':
           return 'Critical Improvements';
         case 'ats':
-          return 'ATS Optimization';
+          return 'System Fit';
         case 'industry':
           return 'Industry-Specific';
         case 'section':
