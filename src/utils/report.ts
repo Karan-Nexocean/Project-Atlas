@@ -2,14 +2,15 @@ import type { jsPDF } from 'jspdf';
 import type { RowInput } from 'jspdf-autotable';
 import type { ResumeAnalysis } from '../App';
 
-// Single logo used for PDF header. Update to your actual file name.
+// Header logos
 const LOGO_WINGMAN_URL = 'logos/nexocean-mascot.png';
-// Secondary logo (right side) — Varuna
 const LOGO_NEXO_URL = 'logo/varuna-logo.png';
+// Certification badge (shown when overallScore >= 80)
+const LOGO_CERT_URL = 'logos/wingman_certified_logo.png';
 
 type LogoImage = { data: string; w: number; h: number };
 type HeaderOpts = { candidateName?: string; overallScore?: number; etaMinutesMin?: number; etaMinutesMax?: number };
-let cachedLogos: { wingman?: LogoImage; nexo?: LogoImage } | null = null;
+let cachedLogos: { wingman?: LogoImage; nexo?: LogoImage; cert?: LogoImage } | null = null;
 let projectFontLoaded = false;
 
 function resolvePublicUrl(path: string): string {
@@ -59,15 +60,17 @@ async function loadImageAsDataURL(src: string, maxW = 2400, maxH = 1200): Promis
   });
 }
 
-async function getLogos(): Promise<{ wingman?: LogoImage; nexo?: LogoImage }> {
+async function getLogos(): Promise<{ wingman?: LogoImage; nexo?: LogoImage; cert?: LogoImage }> {
   if (cachedLogos) return cachedLogos;
   const wingmanUrl = LOGO_WINGMAN_URL ? resolvePublicUrl(LOGO_WINGMAN_URL) : '';
   const nexoUrl = LOGO_NEXO_URL ? resolvePublicUrl(LOGO_NEXO_URL) : '';
+  const certUrl = LOGO_CERT_URL ? resolvePublicUrl(LOGO_CERT_URL) : '';
   const loaders: Promise<LogoImage | null>[] = [];
   if (wingmanUrl) loaders.push(loadImageAsDataURL(wingmanUrl)); else loaders.push(Promise.resolve(null));
   if (nexoUrl) loaders.push(loadImageAsDataURL(nexoUrl)); else loaders.push(Promise.resolve(null));
-  const [wingman, nexo] = await Promise.all(loaders);
-  cachedLogos = { wingman: wingman || undefined, nexo: nexo || undefined };
+  if (certUrl) loaders.push(loadImageAsDataURL(certUrl)); else loaders.push(Promise.resolve(null));
+  const [wingman, nexo, cert] = await Promise.all(loaders);
+  cachedLogos = { wingman: wingman || undefined, nexo: nexo || undefined, cert: cert || undefined };
   if (!cachedLogos.wingman) {
     try { console.warn('[Varuna PDF] Wingman logo not found or failed to load:', wingmanUrl); } catch {}
   }
@@ -109,7 +112,7 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
 function drawHeaderLogos(
   doc: any,
   pageWidth: number,
-  opts: { wingman?: LogoImage; nexo?: LogoImage },
+  opts: { wingman?: LogoImage; nexo?: LogoImage; cert?: LogoImage },
   y = 10,
   marginX = 40,
   maxHeight = 44,
@@ -137,7 +140,7 @@ function drawHeaderLogos(
 function drawPageHeader(
   doc: any,
   pageWidth: number,
-  logos: { wingman?: LogoImage; nexo?: LogoImage },
+  logos: { wingman?: LogoImage; nexo?: LogoImage; cert?: LogoImage },
   header?: HeaderOpts,
   marginX = 24
 ) {
@@ -146,6 +149,22 @@ function drawPageHeader(
     doc.rect(0, 0, pageWidth, 48, 'F');
   } catch {}
   drawHeaderLogos(doc, pageWidth, logos, 6, marginX, 32, Math.min(0.30 * (pageWidth - marginX * 2), 220));
+  // If score >= 80, stamp the Wingman Certified badge in the header (top-right)
+  try {
+    const score = header?.overallScore;
+    if (typeof score === 'number' && score >= 80 && logos.cert) {
+      const img = logos.cert;
+      const ratio = img.w > 0 && img.h > 0 ? img.w / img.h : 1;
+      const maxH = 28;
+      const maxW = 120;
+      let w = maxH * ratio;
+      let h = maxH;
+      if (w > maxW) { const s = maxW / w; w *= s; h *= s; }
+      const x = pageWidth - marginX - w;
+      const y = 8;
+      (doc as any).addImage(img.data, 'PNG', x, y, w, h, undefined, 'FAST');
+    }
+  } catch {}
   if (header?.candidateName) {
     try {
       doc.setFont(projectFontLoaded ? 'Satoshi' : 'helvetica', 'bold');
@@ -194,7 +213,9 @@ export async function generateReportPDF(analysis: ResumeAnalysis, header?: Heade
     await tryLoadProjectFont(doc);
 
     // Header
-    drawPageHeader(doc, pageWidth, logos, header, marginX);
+    // Ensure overallScore is available to header for certification badge
+    const hdr: HeaderOpts = { ...header, overallScore: header?.overallScore ?? analysis.overallScore };
+    drawPageHeader(doc, pageWidth, logos, hdr, marginX);
     doc.setTextColor(34, 49, 89);
     doc.setFont(projectFontLoaded ? 'Satoshi' : 'helvetica', 'bold');
     doc.setFontSize(18);
