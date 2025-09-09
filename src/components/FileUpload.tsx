@@ -13,7 +13,6 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload, isAnalyzin
   const steps = [
     'Scanning document structure...',
     'Analyzing content quality...',
-    'Checking ATS compatibility...',
     'Generating improvement suggestions...'
   ];
   const [activeStep, setActiveStep] = useState(0);
