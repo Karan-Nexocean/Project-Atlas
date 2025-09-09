@@ -48,7 +48,8 @@ Last updated: 2025‑09‑08
     "experience":{ "score": 0–100, "suggestions": string[] },
     "skills":    { "score": 0–100, "suggestions": string[] },
     "education": { "score": 0–100, "suggestions": string[] },
-    "formatting":{ "score": 0–100, "suggestions": string[] }
+    "formatting":{ "score": 0–100, "suggestions": string[] },
+    "stability": { "score": 0–100, "suggestions": string[] }
   },
   "keyStrengths": string[],
   "criticalImprovements": string[],
@@ -60,6 +61,68 @@ Last updated: 2025‑09‑08
 Notes:
 - Scores are integers. Suggestion arrays target 3–7 actionable bullets each.
 - Missing/empty fields are normalized to safe defaults (0 or []).
+
+## Section Rubrics (Scoring Criteria)
+
+### Contact — Criteria
+- Required basics: full name, professional email, phone (with country/area code), LinkedIn; portfolio/GitHub for technical roles.
+- Link quality: clickable and valid URLs; no broken redirects; use canonical LinkedIn/portfolio URLs.
+- Cleanliness: avoid photos, full street addresses, DOB, marital status, and other sensitive personal data.
+- Formatting: concise single block (1–3 lines); consistent separators; no icon‑only contact (not ATS‑friendly).
+- Consistency: standardized capitalization for names; phone and email formatting; consistent locale (e.g., US phone pattern if US‑focused).
+- Suggestions focus: add missing links, fix broken/obfuscated contacts, standardize formats, remove PII.
+
+### Summary — Criteria
+- Length and focus: 3–5 crisp lines (or 2–4 bullets) tailored to the target role.
+- Signal content: current/target title, years of experience, core domains, standout strengths, relevant industries.
+- Impact orientation: quantify outcomes where possible (%, $, time, scale); avoid vague buzzwords and clichés.
+- Keywords: include key ATS terms for the role while remaining natural; avoid keyword stuffing.
+- Voice: concise, action‑oriented phrasing; keep pronouns minimal and professional tone.
+- Suggestions focus: tighten fluff, add measurable outcomes, align to target role/industry, infuse relevant keywords.
+
+### Experience — Criteria
+- Structure: reverse‑chronological; each role lists title, company, location (optional), and dates (MM/YYYY–MM/YYYY or Present).
+- Achievement bullets: 4–7 bullets for recent roles, 2–4 for older roles; XYZ/STAR pattern with measurable results.
+- Scope and context: include scale (team size, revenue, users, latency, budgets) for credibility.
+- Relevance: emphasize role‑matching achievements; de‑emphasize unrelated details.
+- Clarity: distinguish promotions and internal moves; avoid duplicate bullets across roles; minimize responsibility‑only statements.
+- Dates: consistent format; avoid overlapping ambiguity; clarify contract/freelance vs full‑time.
+- Tech usage: reference tools/technologies in context (not just a list); ensure skills claimed appear in achievements.
+- Suggestions focus: rewrite to outcomes, add metrics, reorder for impact, clarify promotions/tenure, fix date consistency.
+
+### Skills — Criteria
+- Organization: group by type (Languages, Frameworks, Cloud, Data/DB, Tools, Methodologies); avoid long, flat lists.
+- Relevance: prioritize skills used in the last 3–5 years and pertinent to the target role; prune outdated/irrelevant entries.
+- Evidence: ensure important skills are reflected in Experience bullets; avoid claims with no backing.
+- Clarity: avoid proficiency bars/stars; keep optional proficiency labels (e.g., Advanced/Intermediate) conservative and consistent.
+- Brevity: aim for 10–20 total items across groups (role‑dependent); separate “selected” vs “comprehensive” if necessary.
+- Suggestions focus: regroup, remove noise, align with target JD, add missing but evidenced skills.
+
+### Education — Criteria
+- Essentials: degree/certification, institution, graduation date (or expected), location optional.
+- Seniority‑aware: for senior candidates, keep concise; for juniors, include GPA (if strong), relevant coursework, projects, honors.
+- Certifications: list issuer, credential name, and validity/expiry; remove expired or label as “expired” if kept for context.
+- Ordering: position appropriately relative to Experience based on seniority and relevance.
+- Suggestions focus: add missing dates/details, consolidate space, highlight relevant academic projects/certs.
+
+### Job Stability Scoring
+- Definition: number of distinct full‑time roles held in the last ~10 years (ignore internships, roles < 6 months, and internal promotions at the same employer). If only ≤3 years of history is visible, assign a neutral stability score (~60) and suggest adding timeline details.
+- Mapping (jobs per 10 years → score):
+  - 1 → 100 (Excellent)
+  - 2 → 90 (Very Good)
+  - 3 → 75 (Good)
+  - 4 → 55 (OK)
+  - 5 → 35 (Bad)
+  - 6+ → 10 (Worst)
+- For resumes covering fewer than 10 years, scale to a decade first: jobs10 = jobsObserved × (10 / yearsCovered); then apply the bins above.
+
+### Formatting — Criteria
+- Spelling/grammar/punctuation/capitalization; flag typos explicitly.
+- Consistent bullet style, tense (past/present), and person (first/third).
+- Layout/whitespace, alignment, margins, readable fonts, section headings.
+- Page length and section order for clarity; avoid dense walls of text.
+- Date formats (consistent), contact/link correctness and standardization.
+- ATS-friendly structure (simple lists, minimal images/tables), where applicable.
 
 ## Prompts (Dev Server)
 - Analyze (JSON‑only): enforces a strict JSON object with the schema above; forbids code fences and prose; requires concise, specific suggestions; keeps total output under model token budget.
@@ -101,6 +164,14 @@ Production note: these routes exist only under Vite dev. For production, deploy 
 - Scores are rubric‑guided but LLM‑based; expect small variance. Use them to prioritize edits rather than as absolute truth.
 - Suggestions aim for measurable impact (%, time saved, revenue, latency, cost) and ATS friendliness (keywords, structure, clarity).
 
+### Formatting Criteria (what “formatting” covers)
+- Spelling/grammar/punctuation/capitalization; flag typos explicitly.
+- Consistent bullet style, tense (past/present), and person (first/third).
+- Layout/whitespace, alignment, margins, readable fonts, section headings.
+- Page length and section order for clarity; avoid dense walls of text.
+- Date formats (consistent), contact/link correctness and standardization.
+- ATS-friendly structure (simple lists, minimal images/tables), where applicable.
+
 ## Troubleshooting
 - “Missing GROQ_API_KEY”: set it in `.env.local` and restart dev.
 - “PDF text extraction failed”: try a text‑based PDF (not scanned) or upload TXT.
@@ -118,4 +189,3 @@ Production note: these routes exist only under Vite dev. For production, deploy 
 - ATS: Applicant Tracking System (parsing and keyword matching for resumes).
 - JSON mode: LLM setting that forces well‑formed JSON output.
 - Heuristic plan: local estimate when AI planning fails or is unavailable.
-

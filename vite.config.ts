@@ -130,7 +130,8 @@ function devApiPlugin() {
     "experience": { "score": 0–100 integer, "suggestions": string[] },
     "skills": { "score": 0–100 integer, "suggestions": string[] },
     "education": { "score": 0–100 integer, "suggestions": string[] },
-    "formatting": { "score": 0–100 integer, "suggestions": string[] }
+    "formatting": { "score": 0–100 integer, "suggestions": string[] },
+    "stability": { "score": 0–100 integer, "suggestions": string[] }
   },
   "keyStrengths": string[],
   "criticalImprovements": string[],
@@ -146,6 +147,10 @@ Rules:
 - If information is missing, lower the relevant score and add clear suggestions.
 - Avoid null/undefined; use empty arrays if needed.
 - Do not include trailing commas or non-JSON values (e.g., NaN, Infinity).
+- Formatting should assess spelling, grammar, punctuation, capitalization; consistent bullet style and tense/person; layout/whitespace, alignment, margins, section headings, fonts, page length; date formats and contact/link correctness. Flag typos explicitly.
+- Compute job stability: count distinct full-time roles in the last ~10 years (ignore internships, roles < 6 months, and internal promotions at the same employer). If only \u2264 3 years of history is visible, set a neutral stability score (~60) and suggest adding timeline details.
+- Map jobs-per-10-years to a stability score using these bins: 1 job \u2192 100 (Excellent), 2 \u2192 90 (Very Good), 3 \u2192 75 (Good), 4 \u2192 55 (OK), 5 \u2192 35 (Bad), 6+ \u2192 10 (Worst). If resume covers Y years < 10, scale jobs to a decade (jobs10 = jobs * 10 / Y) before binning.
+- Reflect stability in the overallScore as a meaningful factor (e.g., ~15% weight), alongside other quality dimensions.
 - Keep total output under the token limit.`;
 
           // JSON Mode: request structured JSON directly (non-streaming)
@@ -252,7 +257,7 @@ Rules:
 Context you know about this project:
 - Name: Varuna — Resume Analyzer (tool under Wingman; company: Nexocean). Includes Interview Guide + AI Resume Analysis views.
 - Design: Tailwind CSS, brand tokens via CSS variables ( --brand-blue, --brand-coral, --brand-butter, --brand-lavender, --brand-cream ). Base font is Satoshi.
-- Resume analysis schema with sections: contact, summary, experience, skills, education, formatting; overallScore 0–100; concrete, actionable suggestions.
+- Resume analysis schema with sections: contact, summary, experience, skills, education, formatting, stability; overallScore 0–100; concrete, actionable suggestions.
 - Users can upload text or PDF resumes; PDFs are parsed server-side. The app normalizes analysis into a strict shape before rendering.
 
 Personality and style:
@@ -376,6 +381,7 @@ function normalizeAnalysis(raw: any) {
       skills: section(sections.skills),
       education: section(sections.education),
       formatting: section(sections.formatting),
+      stability: section(sections.stability),
     },
     keyStrengths: arr(
       pick(raw, ['keyStrengths', 'key_strengths', 'insights.keyStrengths', 'insights.key_strengths'])

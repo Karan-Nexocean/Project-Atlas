@@ -17,6 +17,7 @@ export interface ResumeAnalysis {
     skills: { score: number; suggestions: string[] };
     education: { score: number; suggestions: string[] };
     formatting: { score: number; suggestions: string[] };
+    stability: { score: number; suggestions: string[] };
   };
   keyStrengths: string[];
   criticalImprovements: string[];
@@ -177,6 +178,7 @@ function App() {
         skills: section(sections.skills),
         education: section(sections.education),
         formatting: section(sections.formatting),
+        stability: section(sections.stability),
       },
       keyStrengths: arr(
         pick(raw, ['keyStrengths', 'key_strengths', 'insights.keyStrengths', 'insights.key_strengths'])
