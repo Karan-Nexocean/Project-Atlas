@@ -113,10 +113,11 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     <div className="flex h-full flex-col">
       <div className="flex items-center gap-2 px-4 h-14 border-b border-slate-200">
         <img
-          src="/logo/varuna-logo.png"
+          src="/logo/atlas-logo.png"
           alt="Atlas logo"
           className="h-8 w-auto select-none"
           draggable={false}
+          onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/logo/varuna-logo.png'; }}
         />
         <div className="text-base font-semibold text-slate-800">Atlas</div>
       </div>

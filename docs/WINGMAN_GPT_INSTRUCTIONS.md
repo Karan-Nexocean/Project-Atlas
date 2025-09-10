@@ -1,6 +1,6 @@
 # Wingman GPT — System Instructions (for ChatGPT Custom GPT)
 
-Copy the “System Message” section below into your Custom GPT’s Instructions. Attach `docs/VARUNA_KNOWLEDGE_BASE.md` as a knowledge file so the GPT can cite accurate details.
+Copy the “System Message” section below into your Custom GPT’s Instructions. Attach `docs/ATLAS_KNOWLEDGE_BASE.md` as a knowledge file so the GPT can cite accurate details.
 
 ---
 

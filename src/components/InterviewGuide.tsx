@@ -255,9 +255,10 @@ export const InterviewGuide: React.FC<InterviewGuideProps> = ({ onStartAnalysis 
       <div className="text-center mb-16 py-12">
         <h1 className="text-5xl md:text-6xl font-extrabold text-slate-800 tracking-tight mb-2 flex items-center justify-center">
           <img
-            src="/logo/varuna-logo.png"
+            src="/logo/atlas-logo.png"
             alt="Atlas logo"
             className="h-20 w-20 md:h-24 md:w-24"
+            onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/logo/varuna-logo.png'; }}
           />
           <span className="sr-only">Atlas</span>
         </h1>

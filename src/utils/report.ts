@@ -4,7 +4,9 @@ import type { ResumeAnalysis } from '../App';
 
 // Header logos
 const LOGO_WINGMAN_URL = 'logos/nexocean-mascot.png';
-const LOGO_NEXO_URL = 'logo/varuna-logo.png';
+// Prefer Atlas logo; fallback to legacy Varuna logo if missing
+const LOGO_ATLAS_PRIMARY = 'logo/atlas-logo.png';
+const LOGO_ATLAS_FALLBACK = 'logo/varuna-logo.png';
 // Certification badge (shown when overallScore >= 80)
 const LOGO_CERT_URL = 'logos/wingman_certified_logo.png';
 
@@ -63,16 +65,27 @@ async function loadImageAsDataURL(src: string, maxW = 2400, maxH = 1200): Promis
 async function getLogos(): Promise<{ wingman?: LogoImage; nexo?: LogoImage; cert?: LogoImage }> {
   if (cachedLogos) return cachedLogos;
   const wingmanUrl = LOGO_WINGMAN_URL ? resolvePublicUrl(LOGO_WINGMAN_URL) : '';
-  const nexoUrl = LOGO_NEXO_URL ? resolvePublicUrl(LOGO_NEXO_URL) : '';
+  const atlasUrlPrimary = resolvePublicUrl(LOGO_ATLAS_PRIMARY);
+  const atlasUrlFallback = resolvePublicUrl(LOGO_ATLAS_FALLBACK);
   const certUrl = LOGO_CERT_URL ? resolvePublicUrl(LOGO_CERT_URL) : '';
   const loaders: Promise<LogoImage | null>[] = [];
-  if (wingmanUrl) loaders.push(loadImageAsDataURL(wingmanUrl)); else loaders.push(Promise.resolve(null));
-  if (nexoUrl) loaders.push(loadImageAsDataURL(nexoUrl)); else loaders.push(Promise.resolve(null));
-  if (certUrl) loaders.push(loadImageAsDataURL(certUrl)); else loaders.push(Promise.resolve(null));
-  const [wingman, nexo, cert] = await Promise.all(loaders);
-  cachedLogos = { wingman: wingman || undefined, nexo: nexo || undefined, cert: cert || undefined };
+  // Wingman
+  loaders.push(wingmanUrl ? loadImageAsDataURL(wingmanUrl) : Promise.resolve(null));
+  // Atlas brand: try primary, then fallback
+  loaders.push((async () => {
+    const primary = await loadImageAsDataURL(atlasUrlPrimary);
+    if (primary) return primary;
+    return loadImageAsDataURL(atlasUrlFallback);
+  })());
+  // Certification badge
+  loaders.push(certUrl ? loadImageAsDataURL(certUrl) : Promise.resolve(null));
+  const [wingman, atlas, cert] = await Promise.all(loaders);
+  cachedLogos = { wingman: wingman || undefined, nexo: atlas || undefined, cert: cert || undefined };
   if (!cachedLogos.wingman) {
     try { console.warn('[Atlas PDF] Wingman logo not found or failed to load:', wingmanUrl); } catch {}
+  }
+  if (!cachedLogos.nexo) {
+    try { console.warn('[Atlas PDF] Brand logo not found; attempted', LOGO_ATLAS_PRIMARY, 'then', LOGO_ATLAS_FALLBACK); } catch {}
   }
   return cachedLogos;
 }
