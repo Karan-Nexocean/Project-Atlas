@@ -30,6 +30,9 @@
       linear-gradient(180deg, #f6f9fe 0%, #eef2f9 100%);
     background-attachment: scroll, scroll, scroll;
   }
+  html, body, .neo-card, .neo-pressed, .progress-track, .ocean-bg {
+    transition: background-color .25s ease, color .25s ease, border-color .25s ease, box-shadow .25s ease;
+  }
   .dark body {
     background:
       radial-gradient(1100px 760px at 15% 5%, rgba(56,189,248,0.18), transparent 60%),
@@ -105,6 +108,17 @@
   @media (prefers-reduced-motion: reduce) {
     .atlas-spinner { animation-duration: 1.6s; }
   }
+
+  /* Dark mode overrides for common Tailwind utility colors used across components */
+  .dark .text-slate-800 { color: #e5e7eb !important; }
+  .dark .text-slate-700 { color: #e5e7eb !important; }
+  .dark .text-slate-600 { color: #cbd5e1 !important; }
+  .dark .text-slate-500 { color: #94a3b8 !important; }
+  .dark .text-slate-400 { color: #8191a7 !important; }
+  .dark .bg-white { background-color: rgba(10,15,25,0.92) !important; }
+  .dark .border-slate-200 { border-color: rgba(148,163,184,0.24) !important; }
+  .dark .bg-slate-50 { background-color: rgba(8,14,24,0.92) !important; }
+  .dark .text-slate-800 a { color: rgb(var(--v-turquoise)); }
 
   /* Smooth progress (determinate + indeterminate) */
   .progress-track {

@@ -438,6 +438,9 @@ export async function exportElementAsPDF(
   filename = 'atlas-resume-analysis.pdf',
   header?: HeaderOpts
 ) {
+  const root = document.documentElement;
+  const wasDark = root.classList.contains('dark');
+  if (wasDark) root.classList.remove('dark');
   const [{ jsPDF }, { default: html2canvas }] = await Promise.all([
     import('jspdf'),
     import('html2canvas'),
@@ -551,6 +554,7 @@ export async function exportElementAsPDF(
   } catch {}
 
   doc.save(filename);
+  if (wasDark) root.classList.add('dark');
 }
 
 // Export with a preface: page 1 contains only the suggestions element (scaled ~80%),
@@ -562,6 +566,9 @@ export async function exportAnalysisAsPDFTwoPage(
   firstPageScale = 0.8,
   header?: HeaderOpts
 ) {
+  const html = document.documentElement;
+  const wasDark = html.classList.contains('dark');
+  if (wasDark) html.classList.remove('dark');
   const [{ jsPDF }, { default: html2canvas }] = await Promise.all([
     import('jspdf'),
     import('html2canvas'),
@@ -705,6 +712,7 @@ export async function exportAnalysisAsPDFTwoPage(
   } catch {}
 
   doc.save(filename);
+  if (wasDark) html.classList.add('dark');
 }
 
 async function generateTextReportPDF(analysis: ResumeAnalysis) {

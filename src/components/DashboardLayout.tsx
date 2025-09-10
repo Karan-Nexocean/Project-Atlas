@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Menu, X, Target, UploadCloud, BarChart3, MessageSquare, Waves, ListTodo, Search, User, KeyRound } from 'lucide-react';
 import { IconBadge } from './IconBadge';
 import netlifyIdentity, { initIdentity, currentIdentityEmail } from '../utils/identity';
+import { Sun, Moon } from 'lucide-react';
 
 type View = 'ask' | 'guide' | 'upload' | 'analysis' | 'tasks';
 
@@ -33,6 +34,24 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   const [groqKey, setGroqKey] = useState<string>(() => { try { return localStorage.getItem('atlas:groqKey') || localStorage.getItem('varuna:groqKey') || ''; } catch { return ''; } });
   const [dbUrl, setDbUrl] = useState<string>(() => { try { return localStorage.getItem('atlas:dbUrl') || localStorage.getItem('varuna:dbUrl') || ''; } catch { return ''; } });
   const allowedDomain = (import.meta as any)?.env?.VITE_ALLOW_EMAIL_DOMAIN || '';
+  const [theme, setTheme] = useState<'light'|'dark'>(() => {
+    try {
+      const saved = localStorage.getItem('atlas:theme');
+      if (saved === 'light' || saved === 'dark') return saved;
+    } catch {}
+    // fallback to system preference
+    const prefersDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    return prefersDark ? 'dark' : 'light';
+  });
+
+  // Apply theme class to <html>
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'dark') root.classList.add('dark'); else root.classList.remove('dark');
+    try { localStorage.setItem('atlas:theme', theme); } catch {}
+  }, [theme]);
+
+  const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'));
 
   useEffect(() => {
     initIdentity();
@@ -177,6 +196,15 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             </div>
           </div>
           <div className="flex items-center gap-2">
+            {/* Theme toggle */}
+            <button
+              onClick={toggleTheme}
+              className="inline-flex items-center gap-2 rounded-lg bg-white border border-slate-200 text-slate-700 px-3 py-2 text-sm shadow-sm"
+              title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              <span className="hidden sm:inline">{theme === 'dark' ? 'Light' : 'Dark'}</span>
+            </button>
             <button
               onClick={onOpenChat}
               className="hidden sm:inline-flex items-center gap-2 rounded-lg btn-gradient text-white px-3 py-2 text-sm shadow-sm"
