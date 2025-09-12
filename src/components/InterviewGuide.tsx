@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp, Target, BookOpen, Users, TrendingUp, CheckCircle, ArrowRight, Rocket } from 'lucide-react';
+import { Hero } from './Hero';
 
 interface InterviewGuideProps {
   onStartAnalysis: () => void;
@@ -27,7 +28,7 @@ export const InterviewGuide: React.FC<InterviewGuideProps> = ({ onStartAnalysis 
     {
       id: 'preparation',
       title: 'Preparation is Key',
-      icon: <Target className="w-6 h-6 text-v-turquoise" />,
+      icon: <Target className="w-6 h-6 text-blue-600" />,
       content: {
         subtitle: 'Foundation for success starts with thorough preparation',
         points: [],
@@ -112,7 +113,7 @@ export const InterviewGuide: React.FC<InterviewGuideProps> = ({ onStartAnalysis 
     {
       id: 'during',
       title: 'During the Interview',
-      icon: <Users className="w-6 h-6 text-v-turquoise" />,
+      icon: <Users className="w-6 h-6 text-blue-600" />,
       content: {
         subtitle: 'Execute with confidence and clarity',
         points: [
@@ -253,16 +254,15 @@ export const InterviewGuide: React.FC<InterviewGuideProps> = ({ onStartAnalysis 
     <div className="container mx-auto px-4 py-8">
       {/* Hero Section */}
       <div className="text-center mb-16 py-12">
-        <h1 className="text-5xl md:text-6xl font-extrabold text-slate-800 tracking-tight mb-2 flex items-center justify-center">
+        <div className="mb-4 flex items-center justify-center">
           <img
             src="/logo/atlas-logo.png"
             alt="Atlas logo"
-            className="h-20 w-20 md:h-24 md:w-24"
+            className="h-16 w-16 md:h-20 md:w-20 object-contain"
             onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/logo/varuna-logo.png'; }}
           />
-          <span className="sr-only">Atlas</span>
-        </h1>
-        <div className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-600 bg-clip-text text-transparent mb-6">
+        </div>
+        <div className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-blue-600 via-indigo-500 to-sky-500 bg-clip-text text-transparent mb-6">
           The Guardian of Resume Quality
         </div>
         <div className="max-w-3xl mx-auto">
@@ -344,7 +344,7 @@ export const InterviewGuide: React.FC<InterviewGuideProps> = ({ onStartAnalysis 
                     <ul className="space-y-3 mb-6">
                       {section.content.points.map((point, pointIndex) => (
                         <li key={pointIndex} className="flex items-start space-x-3">
-                          <div className="w-2 h-2 bg-v-turquoise rounded-full mt-2 flex-shrink-0"></div>
+                          <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
                           <span className="text-slate-700 leading-relaxed">{point}</span>
                         </li>
                       ))}
@@ -379,7 +379,7 @@ export const InterviewGuide: React.FC<InterviewGuideProps> = ({ onStartAnalysis 
 
       {/* Call to Action */}
       <div className="max-w-4xl mx-auto">
-        <div className="rounded-2xl p-8 text-white text-center shadow-2xl btn-gradient">
+        <div className="rounded-2xl p-8 text-white text-center shadow-2xl" style={{ backgroundImage: 'linear-gradient(135deg, rgb(37,99,235), rgb(14,165,233))' }}>
           <div className="flex items-center justify-center mb-4">
             <Rocket className="w-12 h-12 text-white" />
           </div>
@@ -390,7 +390,7 @@ export const InterviewGuide: React.FC<InterviewGuideProps> = ({ onStartAnalysis 
           </p>
           <button
             onClick={onStartAnalysis}
-            className="bg-white text-v-turquoise px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2 mx-auto"
+            className="btn btn-secondary !rounded-xl px-8 py-4 font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2 mx-auto"
           >
             <span>Start Resume Analysis with Atlas</span>
             <ArrowRight className="w-5 h-5" />
@@ -400,7 +400,7 @@ export const InterviewGuide: React.FC<InterviewGuideProps> = ({ onStartAnalysis 
 
       {/* Additional Resources */}
       <div className="max-w-4xl mx-auto mt-12">
-        <div className="rounded-xl p-6 border border-slate-200 bg-white shadow-sm">
+        <div className="rounded-xl p-6 card">
           <h4 className="text-lg font-semibold text-slate-800 mb-4 flex items-center">
             Additional Resources
           </h4>
@@ -423,7 +423,7 @@ export const InterviewGuide: React.FC<InterviewGuideProps> = ({ onStartAnalysis 
             </div>
           </div>
           <div className="mt-4 p-3 neo-pressed rounded-lg">
-            <p className="text-sm text-v-turquoise">
+            <p className="text-sm text-blue-600">
               <strong>Pro Tip:</strong> We emphasize mutual fit. Ask questions about scope, success metrics, 
               and constraints to ensure alignment.
             </p>

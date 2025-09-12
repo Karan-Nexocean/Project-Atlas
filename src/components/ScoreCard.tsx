@@ -50,16 +50,16 @@ export const ScoreCard: React.FC<ScoreCardProps> = ({ title, score, suggestions 
           </div>
         </div>
         
-        <div className="flex items-center justify-between w-full text-left text-v-turquoise select-none">
+        <div className="flex items-center justify-between w-full text-left text-blue-600 select-none">
           <span className="font-medium">suggestions</span>
         </div>
       </div>
       
-      <div className="border-t border-slate-200 p-6 bg-slate-50">
+      <div className="border-t border-slate-200 p-6 bg-slate-50 dark:bg-white/[0.04]">
         <ul className="space-y-3">
           {items.map((suggestion, index) => (
             <li key={index} className="flex items-start space-x-3">
-              <div className="w-2 h-2 bg-v-turquoise rounded-full mt-2 flex-shrink-0"></div>
+              <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
               <span className="text-slate-700 text-sm leading-relaxed">{suggestion}</span>
             </li>
           ))}

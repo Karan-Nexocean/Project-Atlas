@@ -88,7 +88,7 @@ export const ChatAssistant: React.FC<ChatAssistantProps> = ({ open, onClose }) =
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
 
       {/* Panel */}
-      <div className="absolute right-0 top-0 h-full w-full sm:w-[28rem] md:w-[32rem] bg-white border-l border-slate-200 shadow-2xl flex flex-col">
+      <div className="absolute right-0 top-0 h-full w-full sm:w-[28rem] md:w-[32rem] bg-white/70 dark:bg-white/5 backdrop-blur border-l border-slate-200 dark:border-white/10 shadow-2xl flex flex-col">
         {/* Header */}
         <div className="px-4 py-3 border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -132,13 +132,13 @@ export const ChatAssistant: React.FC<ChatAssistantProps> = ({ open, onClose }) =
               onKeyDown={onKeyDown}
               rows={1}
               placeholder="Ask about ATS, phrasing bullets, or this app..."
-              className="flex-1 resize-none rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-v-turquoise/40 text-slate-800"
+              className="flex-1 textarea text-slate-800 dark:text-slate-200"
             />
             <button
               disabled={!canSend}
               onClick={handleSend}
               className={`inline-flex items-center gap-2 px-3 py-2 rounded-xl text-white shadow-sm transition-colors ${
-                canSend ? 'btn-gradient' : 'bg-slate-400 cursor-not-allowed'
+                canSend ? 'btn btn-primary !rounded-xl' : 'bg-slate-400 cursor-not-allowed'
               }`}
             >
               <Send className="w-4 h-4" />

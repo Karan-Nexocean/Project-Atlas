@@ -7,6 +7,7 @@ import { AskView } from './components/AskView';
 import { DashboardLayout } from './components/DashboardLayout';
 import { TasksView } from './components/TasksView';
 import type { TaskItem } from './components/TaskPanel';
+import { useToast } from './components/toast';
 
 export interface ResumeAnalysis {
   overallScore: number;
@@ -34,6 +35,7 @@ function App() {
   const [tasksTransformToken, setTasksTransformToken] = useState<string | null>(null);
   const [tasksPlanToken, setTasksPlanToken] = useState<string | null>(null);
   const [candidateName, setCandidateName] = useState<string>('');
+  const toast = useToast();
 
   // Persist tasks in localStorage (migrate Wingman -> Varuna -> Atlas)
   React.useEffect(() => {
@@ -138,7 +140,7 @@ function App() {
     } catch (err) {
       console.error('AI analysis error', err);
       const message = err instanceof Error ? err.message : String(err);
-      alert(`AI analysis failed: ${message}`);
+      toast.error(`AI analysis failed: ${message}`);
     } finally {
       setIsAnalyzing(false);
     }
@@ -315,13 +317,13 @@ function App() {
       )}
 
       {currentView === 'guide' && (
-        <section className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm neo-card">
+        <section className="card p-4 sm:p-6">
           <InterviewGuide onStartAnalysis={handleStartAnalysis} />
         </section>
       )}
 
       {currentView === 'upload' && (
-        <section className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm neo-card">
+        <section className="card p-4 sm:p-6">
           <div className="mb-6">
             <h2 className="text-lg font-semibold text-slate-800">Upload your resume</h2>
             <p className="text-sm text-slate-600">PDF recommended. We’ll extract text locally for analysis.</p>
@@ -331,7 +333,7 @@ function App() {
       )}
 
       {currentView === 'analysis' && analysisData && (
-        <section className="rounded-xl border border-slate-200 bg-white p-2 sm:p-3 md:p-4 shadow-sm neo-card">
+        <section className="card p-2 sm:p-3 md:p-4">
           <AnalysisResults
             analysis={analysisData}
             candidateName={candidateName}
@@ -356,7 +358,7 @@ function App() {
     )}
 
     {currentView === 'tasks' && (
-      <section className="rounded-xl border border-slate-200 bg-white p-2 sm:p-3 md:p-4 shadow-sm neo-card">
+      <section className="card p-2 sm:p-3 md:p-4">
         <TasksView
           tasks={tasks}
           onGenerateFromAnalysis={() => {

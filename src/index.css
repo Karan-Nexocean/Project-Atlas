@@ -42,35 +42,50 @@
   }
 }
 
-/* Atlas color tokens */
+/* Atlas color tokens - Rethemed to Dark Blue / Blue palette */
 :root {
-  /* Visual Design System: Offblack, Paper White, True Turquoise */
-  --v-offblack: 17 24 39;       /* #111827 */
-  --v-paper: 252 252 252;       /* #FCFCFC */
-  --v-turquoise: 20 184 166;    /* #14B8A6 (teal/turquoise) */
-  --ocean-deep: 7 21 33;        /* #071521 - deep ocean */
-  --ocean-teal: 12 74 110;      /* #0C4A6E - dark teal */
-  --ocean-glow: 56 189 248;     /* #38BDF8 - cyan glow */
+  /* Core neutrals */
+  --v-offblack: 17 24 39;        /* #111827 */
+  --v-paper: 252 252 252;        /* #FCFCFC */
 
-  /* Legacy brand tokens retained for compatibility (mapped softly to new palette) */
-  --brand-blue: var(--v-turquoise);
-  --brand-coral: 20 184 166;   /* collapse gradient; keep accent consistent */
-  --brand-butter: 240 253 250; /* turquoise-tinted paper */
-  --brand-lavender: 224 242 241; /* light cyan tint */
+  /* Brand blues */
+  --brand-primary-rgb: 30 58 138;    /* #1E3A8A blue-800 */
+  --brand-accent-rgb: 37 99 235;     /* #2563EB blue-600 */
+  --brand-accent2-rgb: 14 165 233;   /* #0EA5E9 sky-500 */
+
+  /* Legacy ocean variables remapped to blue palette for compatibility */
+  --ocean-deep: 11 18 32;        /* #0B1220 */
+  --ocean-teal: 23 37 84;        /* #172554 indigo-950-ish */
+  --ocean-glow: 59 130 246;      /* #3B82F6 blue-500 */
+
+  /* Back-compat: map v-turquoise to brand accent */
+  --v-turquoise: var(--brand-accent-rgb);
+
+  /* Legacy brand tokens retained for compatibility */
+  --brand-blue: var(--brand-accent-rgb);
+  --brand-coral: var(--brand-accent2-rgb);
+  --brand-butter: 239 246 255;   /* blue-50 */
+  --brand-lavender: 219 234 254; /* blue-100 */
   --brand-cream: var(--v-paper);
 }
 
 .dark {
-  --v-offblack: 241 245 249;   /* #F1F5F9 for text on dark */
-  --v-paper: 10 15 25;         /* deep near-black background */
-  --v-turquoise: 45 212 191;   /* slightly brighter turquoise */
+  --v-offblack: 241 245 249;     /* #F1F5F9 for text on dark */
+  --v-paper: 10 15 25;           /* deep near-black */
 
-  /* Legacy brand tokens (dark mapping) */
-  --brand-blue: var(--v-turquoise);
-  --brand-coral: var(--v-turquoise);
-  --brand-butter: 6 78 59;      /* deep teal tint */
-  --brand-lavender: 15 118 110; /* tealish tint */
+  /* Slightly brighter blues in dark */
+  --brand-primary-rgb: 30 64 175;  /* #1D4ED8 blue-700 */
+  --brand-accent-rgb: 59 130 246;  /* #3B82F6 blue-500 */
+  --brand-accent2-rgb: 56 189 248; /* #38BDF8 sky-400 */
+
+  --brand-blue: var(--brand-accent-rgb);
+  --brand-coral: var(--brand-accent2-rgb);
+  --brand-butter: 8 47 73;        /* slate/blue deep tint */
+  --brand-lavender: 30 58 138;    /* blue-800 */
   --brand-cream: var(--v-paper);
+
+  /* Back-compat for dark mode */
+  --v-turquoise: var(--brand-accent-rgb);
 }
 
 /* Neumorphism helpers */
@@ -154,44 +169,38 @@
   @media (prefers-reduced-motion: reduce) {
     .progress-bar-indeterminate { animation-duration: 2.4s; }
   }
-  /* Gradient buttons and states */
+  /* Gradient buttons and states (retuned to blue palette) */
   .btn-gradient {
-    @apply bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-600 text-white;
+    @apply bg-gradient-to-r from-blue-600 via-indigo-500 to-sky-500 text-white;
   }
-  .btn-gradient:hover { filter: brightness(1.05); }
+  .btn-gradient:hover { filter: brightness(1.06); }
   .btn-gradient:disabled { opacity: 0.6; cursor: not-allowed; }
 
   .nav-active-gradient {
-    @apply bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-600 text-white;
+    @apply bg-gradient-to-r from-blue-600 via-indigo-500 to-sky-500 text-white;
   }
 
   .bubble-user-gradient {
-    @apply bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-600 text-white;
+    @apply bg-gradient-to-r from-blue-600 via-indigo-500 to-sky-500 text-white;
   }
-  /* Ocean background with subtle waves and bubbles */
-  .ocean-bg {
-    background:
-      radial-gradient(1000px 700px at 70% 10%, rgba(var(--ocean-glow),0.06), transparent 60%),
-      radial-gradient(800px 600px at 15% 25%, rgba(var(--v-turquoise),0.10), transparent 60%),
-      radial-gradient(900px 600px at 90% 80%, rgba(var(--ocean-teal),0.20), transparent 60%),
-      linear-gradient(180deg, rgba(var(--ocean-teal),0.45) 0%, rgba(var(--ocean-deep),0.95) 100%),
-      rgb(var(--ocean-deep));
-    filter: saturate(105%);
-    /* Promote to its own layer for smoother scroll */
-    will-change: transform;
-    transform: translateZ(0);
-    contain: paint;
+  /* App background (blue ambient gradients) */
+  .bg-app {
+    background-image:
+      radial-gradient(1000px 600px at 10% -10%, rgba(var(--brand-accent-rgb),0.18), rgba(255,255,255,0)),
+      radial-gradient(800px 500px at 110% -20%, rgba(var(--brand-accent2-rgb),0.16), rgba(255,255,255,0));
+    background-color: rgb(var(--brand-butter));
   }
-  .ocean-bg::after {
+  .dark .bg-app { background-color: rgb(var(--ocean-deep)); }
+
+  /* Subtle highlights for depth */
+  .bg-app::after {
     content: '';
     position: fixed;
     inset: 0;
     pointer-events: none;
-    /* Remove SVG turbulence for performance; keep light highlights */
     background:
       radial-gradient(600px 400px at 20% 15%, rgba(255,255,255,0.05), transparent 60%),
       radial-gradient(900px 500px at 80% 85%, rgba(255,255,255,0.04), transparent 70%);
-    background-size: auto, auto;
     mix-blend-mode: soft-light;
   }
   /* Decorative ocean orbs and arcs */
@@ -236,8 +245,8 @@
   .ocean-progress-bar {
     height: 100%;
     background:
-      linear-gradient(90deg, rgba(20,184,166,0.35), rgba(20,184,166,0.75)),
-      repeating-linear-gradient(135deg, rgba(20,184,166,0.25) 0 12px, rgba(255,255,255,0.15) 12px 24px);
+      linear-gradient(90deg, rgba(var(--brand-accent-rgb),0.35), rgba(var(--brand-accent-rgb),0.75)),
+      repeating-linear-gradient(135deg, rgba(var(--brand-accent2-rgb),0.22) 0 12px, rgba(255,255,255,0.12) 12px 24px);
     background-size: 200% 100%, 200% 100%;
     animation: ocean-wave 2.2s linear infinite;
   }
@@ -307,4 +316,101 @@
   .will-change-transform-opacity {
     will-change: transform, opacity;
   }
+  /* New primitives from design template */
+  .card {
+    @apply rounded-2xl border p-5 shadow-lg;
+    background-color: rgba(255,255,255,0.7);
+    backdrop-filter: blur(12px);
+    border-color: rgba(229,231,235,1); /* gray-200 */
+  }
+  .dark .card {
+    background-color: rgba(255,255,255,0.05);
+    border-color: rgba(255,255,255,0.10);
+  }
+
+  .btn {
+    @apply inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium shadow-lg transition-all;
+  }
+  .btn-primary {
+    background-image: linear-gradient(135deg, rgb(var(--brand-accent-rgb)), rgb(var(--brand-accent2-rgb)));
+    color: white;
+  }
+  .btn-primary:hover { transform: translateY(-1px); filter: brightness(1.05); }
+  .btn-secondary {
+    background-color: rgba(255,255,255,0.7);
+    color: #111827;
+    border: 1px solid #e5e7eb;
+  }
+  .dark .btn-secondary {
+    background-color: rgba(255,255,255,0.10);
+    color: #e5e7eb;
+    border-color: rgba(255,255,255,0.10);
+  }
+
+  .input, .textarea {
+    @apply w-full rounded-xl border px-3 py-2 text-sm shadow-lg focus:outline-none;
+    background-color: rgba(255,255,255,0.8);
+    border-color: #e5e7eb;
+  }
+  .textarea { @apply resize-none; }
+  .input:focus, .textarea:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(var(--brand-accent-rgb), 0.5);
+    border-color: rgba(var(--brand-accent-rgb), 0.6);
+  }
+  .dark .input, .dark .textarea {
+    background-color: rgba(255,255,255,0.05);
+    border-color: rgba(255,255,255,0.10);
+    color: #e5e7eb;
+  }
+
+  .pill-toggle {
+    @apply inline-flex items-center rounded-full border p-1;
+    background-color: rgba(255,255,255,0.7);
+  }
+  .pill-toggle button { @apply rounded-full px-3 py-1 text-xs; }
+  .pill-toggle button.active {
+    background-color: rgb(var(--brand-accent-rgb));
+    color: white;
+    box-shadow: 0 10px 25px rgba(37,99,235,0.35);
+  }
+
+  /* Hover glow effect */
+  .card, .btn, .input, .textarea, .pill-toggle { position: relative; z-index: 0; }
+  .card::before, .btn::before, .input::before, .textarea::before, .pill-toggle::before {
+    content: '';
+    position: absolute; inset: -4px; border-radius: inherit; pointer-events: none; opacity: 0;
+    transition: opacity 200ms ease;
+    background: radial-gradient(240px 240px at var(--glow-x,50%) var(--glow-y,50%), rgba(var(--brand-accent-rgb),0.25), rgba(var(--brand-accent2-rgb),0.15), transparent 60%);
+    filter: blur(28px); z-index: -1;
+  }
+  .card:hover::before, .btn:hover::before, .input:focus::before, .textarea:focus::before, .pill-toggle:hover::before { opacity: 1; }
+}
+
+/* Ray UI (from-scratch alternative theme) */
+@layer utilities {
+  /* Default (light) */
+  .ray-bg { background: radial-gradient(1200px 800px at 80% -10%, rgba(14,165,233,0.10), transparent 60%), radial-gradient(900px 600px at -10% 20%, rgba(37,99,235,0.10), transparent 60%), linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%); }
+  /* Dark */
+  .dark .ray-bg { background: radial-gradient(1200px 800px at 80% -10%, rgba(255,0,128,0.06), transparent 60%), radial-gradient(900px 600px at -10% 20%, rgba(59,130,246,0.08), transparent 60%), linear-gradient(180deg, #0b0f14 0%, #0a0d12 100%); }
+  .ray-card {
+    position: relative;
+    border-radius: 22px;
+    background: rgba(22, 26, 32, 0.7);
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06);
+    backdrop-filter: blur(16px);
+  }
+  .ray-window { border-radius: 24px; background: rgba(255,255,255,0.8); border: 1px solid rgba(0,0,0,0.06); box-shadow: 0 40px 120px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.9); backdrop-filter: blur(12px); }
+  .dark .ray-window { background: rgba(15,18,23,0.75); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 40px 120px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.08); backdrop-filter: blur(20px); }
+  .ray-btn { @apply inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium; color: #0f172a; background: rgba(255,255,255,0.8); border: 1px solid rgba(0,0,0,0.06); box-shadow: 0 6px 18px rgba(15,23,42,0.08), inset 0 1px 0 rgba(255,255,255,0.9); backdrop-filter: blur(10px); }
+  .dark .ray-btn { color: #e5e7eb; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); box-shadow: 0 6px 18px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.10); }
+  .ray-btn:hover { filter: brightness(1.08); }
+  .ray-btn-primary { color: white; background: linear-gradient(135deg, #2563eb, #0ea5e9); border: 1px solid rgba(255,255,255,0.2); }
+  .ray-seg { @apply inline-flex items-center rounded-full border px-1 py-1; border-color: rgba(0,0,0,0.08); background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); }
+  .ray-seg button { @apply rounded-full px-3 py-1 text-sm; color: #475569; }
+  .ray-seg button.active { color: #0b0f14; background: white; box-shadow: 0 8px 24px rgba(15,23,42,0.06); }
+  .dark .ray-seg { border-color: rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); }
+  .dark .ray-seg button { color: #cbd5e1; }
+  .dark .ray-seg button.active { color: #0b0f14; background: white; box-shadow: 0 8px 24px rgba(255,255,255,0.12); }
 }

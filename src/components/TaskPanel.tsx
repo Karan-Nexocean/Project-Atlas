@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Loader, CheckCircle } from 'lucide-react';
+import { useToast } from './toast';
 
 export type TaskSource =
   | { kind: 'critical' }
@@ -105,7 +106,7 @@ export const TaskPanel: React.FC<TaskPanelProps> = ({ open, onClose, tasks, init
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(toMarkdown());
-      alert('Copied tasks to clipboard');
+      toast.success('Copied tasks to clipboard');
     } catch (e) {
       console.error('copy failed', e);
     }
@@ -141,7 +142,7 @@ export const TaskPanel: React.FC<TaskPanelProps> = ({ open, onClose, tasks, init
         aria-label="Tasks from analysis"
       >
         <div className="h-full p-3 sm:p-5">
-          <div className="rounded-l-3xl h-full flex flex-col overflow-hidden bg-white shadow-xl border border-slate-200">
+          <div className="rounded-l-3xl h-full flex flex-col overflow-hidden bg-white/70 dark:bg-white/5 backdrop-blur shadow-xl border border-slate-200 dark:border-white/10">
             {/* Header */}
             <div className="sticky top-0 z-10 p-5 flex items-center justify-between bg-transparent">
               <div>
@@ -168,7 +169,7 @@ export const TaskPanel: React.FC<TaskPanelProps> = ({ open, onClose, tasks, init
               </button>
               <button
                 onClick={copy}
-                className="px-4 py-2 rounded-xl btn-gradient text-white shadow-md hover:opacity-95"
+                className="btn btn-primary !rounded-xl shadow-md hover:opacity-95"
               >
                 Copy as Markdown
               </button>
@@ -219,7 +220,7 @@ export const TaskPanel: React.FC<TaskPanelProps> = ({ open, onClose, tasks, init
                   </div>
                   <ul className="space-y-3">
                     {items.map((t) => (
-                      <li key={t.id} className="rounded-2xl p-3 sm:p-4 flex items-start gap-3 neo-card border border-slate-200">
+                      <li key={t.id} className="rounded-2xl p-3 sm:p-4 flex items-start gap-3 card">
                         <div className="rounded-md p-1 bg-slate-100">
                           <input
                             id={t.id}
@@ -244,3 +245,4 @@ export const TaskPanel: React.FC<TaskPanelProps> = ({ open, onClose, tasks, init
     </div>
   );
 };
+  const toast = useToast();

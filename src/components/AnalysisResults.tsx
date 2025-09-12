@@ -3,6 +3,7 @@ import { ResumeAnalysis } from '../App';
 import { generateReportPDF, exportElementAsPDF, exportAnalysisAsPDFTwoPage } from '../utils/report';
 import { ScoreCard } from './ScoreCard';
 import { SuggestionCard } from './SuggestionCard';
+import { Motion, MotionCard } from './motion';
 import { ArrowLeft, Download, ShipWheel, Anchor, Waves, Sailboat } from 'lucide-react';
 import type { TaskItem } from './TaskPanel';
 import { estimatePlanFromTasks } from '../utils/plan';
@@ -73,7 +74,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, cand
         <button
           data-html2canvas-ignore="true"
           onClick={() => setNameModalOpen(true)}
-          className="flex items-center space-x-2 btn-gradient text-white px-6 py-3 rounded-lg hover:opacity-95 transition-colors"
+          className="flex items-center space-x-2 btn btn-primary !rounded-lg px-6 py-3 hover:opacity-95 transition-colors"
         >
           <Download className="w-4 h-4" />
           <span>Download Report</span>
@@ -81,7 +82,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, cand
       </div>
 
       {/* Overall Score */}
-      <div className="export-block neo-card rounded-2xl shadow-xl border border-slate-200 p-8 mb-8">
+      <MotionCard className="export-block rounded-2xl shadow-xl p-8 mb-8">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-slate-800 mb-4">Resume Analysis Complete</h2>
           <div className="flex items-center justify-center space-x-4">
@@ -98,18 +99,19 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, cand
             <div className="ocean-progress-bar rounded-full" style={{ width: `${analysis.overallScore}%` }} />
           </div>
         </div>
-      </div>
+      </MotionCard>
 
       {/* Section Scores */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-        {Object.entries(analysis.sections).map(([section, data]) => (
-          <ScoreCard
-            key={section}
-            title={section.charAt(0).toUpperCase() + section.slice(1)}
-            score={data.score}
-            suggestions={data.suggestions}
-            forceExpanded={exporting}
-          />
+        {Object.entries(analysis.sections).map(([section, data], i) => (
+          <Motion key={section} delay={i * 0.05}>
+            <ScoreCard
+              title={section.charAt(0).toUpperCase() + section.slice(1)}
+              score={data.score}
+              suggestions={data.suggestions}
+              forceExpanded={exporting}
+            />
+          </Motion>
         ))}
       </div>
 
@@ -133,24 +135,27 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, cand
 
         {/* Detailed Recommendations */}
         <div className="grid lg:grid-cols-2 gap-8">
+          <Motion>
           <SuggestionCard
             title="System Fit"
             icon={<Waves className="w-6 h-6" />}
             items={analysis.atsOptimization}
             variant="info"
           />
-          
+          </Motion>
+          <Motion delay={0.05}>
           <SuggestionCard
             title="Industry-Specific Tips"
             icon={<Sailboat className="w-6 h-6" />}
             items={analysis.industrySpecific}
             variant="secondary"
           />
+          </Motion>
         </div>
       </div>
 
       {/* Action Items */}
-      <div className="btn-gradient rounded-2xl p-8 mt-12 text-white text-center" data-html2canvas-ignore>
+      <div className="rounded-2xl p-8 mt-12 text-white text-center" style={{ backgroundImage: 'linear-gradient(135deg, rgb(37,99,235), rgb(14,165,233))' }} data-html2canvas-ignore>
         <h3 className="text-2xl font-bold mb-4">Ask Atlas to plan your tasks?</h3>
         <p className="mb-6 opacity-90">
           Atlas can help you implement these suggestions and increase your chance of landing interviews
@@ -158,7 +163,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, cand
         <div className="flex justify-center">
           <button
             onClick={() => { onPlanTasks?.(); }}
-            className="bg-white/10 border-2 border-white/60 text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-v-turquoise transition-colors"
+            className="btn btn-secondary !rounded-lg border-white/60 text-white hover:text-slate-900"
             data-html2canvas-ignore="true"
           >
             Ask Atlas to Plan Tasks
@@ -171,7 +176,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, cand
     {nameModalOpen && (
       <div className="fixed inset-0 z-[70] flex items-center justify-center" data-html2canvas-ignore>
         <div className="absolute inset-0 bg-black/40" onClick={() => setNameModalOpen(false)} />
-        <div className="relative w-[92vw] max-w-md rounded-2xl bg-white border border-slate-200 shadow-2xl p-6">
+        <div className="relative w-[92vw] max-w-md card shadow-2xl p-6">
           <h4 className="text-lg font-semibold text-slate-800 mb-2">Name your report</h4>
           <p className="text-sm text-slate-600 mb-4">This name will appear at the top of page 1 and be used as the file name.</p>
           <input
@@ -179,10 +184,10 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, cand
             value={reportName}
             onChange={(e) => setReportName(e.target.value)}
             placeholder={candidateName || 'Candidate Name'}
-            className="w-full rounded-xl border border-slate-300 px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-v-turquoise/40"
+            className="input"
           />
           <div className="mt-5 flex justify-end gap-3">
-            <button onClick={() => setNameModalOpen(false)} className="px-4 py-2 rounded-xl bg-slate-100 text-slate-800">Cancel</button>
+            <button onClick={() => setNameModalOpen(false)} className="btn btn-secondary !rounded-xl">Cancel</button>
             <button
               onClick={async () => {
                 const headerName = (reportName || candidateName || '').trim();
@@ -228,13 +233,14 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, cand
                 }
                 await generateReportPDF(analysis, { candidateName: headerName || undefined });
               }}
-              className="px-4 py-2 rounded-xl btn-gradient text-white"
+              className="btn btn-primary !rounded-xl"
             >
               Download
             </button>
           </div>
         </div>
       </div>
+ 
     )}
     </>
   );

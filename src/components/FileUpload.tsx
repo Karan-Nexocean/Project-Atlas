@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Upload, FileText, X, CheckCircle } from 'lucide-react';
 import { Spinner } from './Spinner';
+import { useToast } from './toast';
 
 interface FileUploadProps {
   onFileUpload: (file: File) => void;
@@ -10,6 +11,7 @@ interface FileUploadProps {
 export const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload, isAnalyzing }) => {
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const toast = useToast();
   const steps = [
     'Scanning document structure...',
     'Analyzing content quality...',
@@ -45,15 +47,19 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload, isAnalyzin
       const file = e.dataTransfer.files[0];
       if (isValidFileType(file)) {
         setSelectedFile(file);
+      } else {
+        toast.error('Unsupported file. Please upload PDF or TXT');
       }
     }
-  }, []);
+  }, [toast]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       if (isValidFileType(file)) {
         setSelectedFile(file);
+      } else {
+        toast.error('Unsupported file. Please upload PDF or TXT');
       }
     }
   };
@@ -176,7 +182,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload, isAnalyzin
             
             <button
               onClick={handleAnalyze}
-              className="w-full btn-gradient text-white py-4 px-8 rounded-xl font-semibold text-lg hover:opacity-95 transition-all duration-300 transform hover:scale-105 shadow-lg"
+              className="w-full btn btn-primary !rounded-xl py-4 px-8 font-semibold text-lg hover:opacity-95 transition-all duration-300 transform hover:scale-105 shadow-lg"
             >
               Analyze with Atlas
             </button>

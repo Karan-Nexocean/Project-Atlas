@@ -7,9 +7,9 @@ export const Hero: React.FC = () => {
     <section className="py-20 px-4">
       <div className="container mx-auto text-center">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-5xl md:text-6xl font-bold text-slate-800 mb-6">
+          <h2 className="text-5xl md:text-6xl font-extrabold tracking-tight text-slate-800 mb-6">
             Your AI Resume
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-v-turquoise to-v-turquoise">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-500 to-sky-500">
               {' '}Atlas
             </span>
           </h2>
@@ -20,7 +20,7 @@ export const Hero: React.FC = () => {
           </p>
           
           <div className="grid md:grid-cols-3 gap-8 mb-16">
-            <div className="bg-white rounded-xl p-6 border border-slate-200">
+            <div className="card">
               <div className="mb-4 mx-auto w-12">
                 <IconBadge size={48}>
                   <TrendingUp className="w-6 h-6" />
@@ -30,7 +30,7 @@ export const Hero: React.FC = () => {
               <p className="text-slate-600">Advanced AI scans your resume in seconds and identifies improvement opportunities</p>
             </div>
             
-            <div className="bg-white rounded-xl p-6 border border-slate-200">
+            <div className="card">
               <div className="mb-4 mx-auto w-12">
                 <IconBadge size={48}>
                   <Anchor className="w-6 h-6" />
@@ -40,7 +40,7 @@ export const Hero: React.FC = () => {
               <p className="text-slate-600">Get specific, actionable suggestions with examples to implement immediately</p>
             </div>
             
-            <div className="bg-white rounded-xl p-6 border border-slate-200">
+            <div className="card">
               <div className="mb-4 mx-auto w-12">
                 <IconBadge size={48}>
                   <ShipWheel className="w-6 h-6" />

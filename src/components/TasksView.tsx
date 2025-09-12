@@ -2,6 +2,8 @@ import React, { useMemo, useState } from 'react';
 import { TaskItem } from './TaskPanel';
 import { ClipboardCopy, Download, Inbox, LayoutGrid, ListChecks, Wand2, Loader } from 'lucide-react';
 import { useTaskPlanner } from '../hooks/useTaskPlanner';
+import { Motion, MotionCard, Stagger } from './motion';
+import { useToast } from './toast';
 
 interface TasksViewProps {
   tasks: TaskItem[];
@@ -16,6 +18,7 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onGenerateFromAnaly
   const [step, setStep] = useState(0);
   const [view, setView] = useState<'list'|'grid'>('list');
   const { planning, plan, error, planTasks } = useTaskPlanner();
+  const toast = useToast();
   const simSteps = [
     'Reading analysis data...',
     'Aggregating section suggestions...',
@@ -61,15 +64,19 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onGenerateFromAnaly
           return 'System Fit';
         case 'industry':
           return 'Industry-Specific';
-        case 'section':
-          return `Section: ${t.source.section}`;
+        case 'section': {
+          const name = (t.source.section || '').trim();
+          return name ? `Section: ${name}` : 'Section Suggestions';
+        }
+        default:
+          return 'Other';
       }
     };
-    tasks.forEach((t) => {
+    for (const t of tasks) {
       const key = label(t);
       if (!map.has(key)) map.set(key, []);
       map.get(key)!.push(t);
-    });
+    }
     return Array.from(map.entries());
   }, [tasks]);
 
@@ -88,9 +95,10 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onGenerateFromAnaly
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(toMarkdown());
-      alert('Copied tasks to clipboard');
+      toast.success('Copied tasks to clipboard');
     } catch (e) {
       console.error('copy failed', e);
+      toast.error('Copy failed');
     }
   };
 
@@ -106,15 +114,20 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onGenerateFromAnaly
 
   if (!tasks.length) {
     return (
-      <div className="rounded-xl border border-slate-200 bg-white p-8 text-center">
-        <div className="mx-auto w-12 h-12 rounded-lg bg-slate-100 grid place-items-center mb-3">
-          <Inbox className="w-6 h-6 text-slate-500" />
+      <div className="card p-8 text-center">
+        <div className="mx-auto mb-4">
+          <svg width="140" height="90" viewBox="0 0 140 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="20" width="120" height="60" rx="12" fill="rgba(59,130,246,0.08)" stroke="rgba(59,130,246,0.25)" />
+            <rect x="25" y="35" width="90" height="6" rx="3" fill="rgba(59,130,246,0.35)" />
+            <rect x="25" y="47" width="72" height="6" rx="3" fill="rgba(148,163,184,0.6)" />
+            <rect x="25" y="59" width="54" height="6" rx="3" fill="rgba(148,163,184,0.4)" />
+          </svg>
         </div>
         <h3 className="text-lg font-semibold text-slate-800 mb-1">No tasks yet</h3>
         <p className="text-sm text-slate-600 mb-4">Generate tasks from your latest analysis.</p>
         <button
           onClick={onGenerateFromAnalysis}
-          className="inline-flex items-center gap-2 rounded-lg btn-gradient text-white px-4 py-2 text-sm shadow-sm"
+          className="btn btn-primary !rounded-lg px-4 py-2 text-sm"
         >
           Generate from analysis
         </button>
@@ -128,13 +141,13 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onGenerateFromAnaly
         <button onClick={copy} className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-100 text-slate-800 text-sm">
           <ClipboardCopy className="w-4 h-4" /> Copy as Markdown
         </button>
-        <button onClick={download} className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-100 text-slate-800 text-sm">
+        <button onClick={download} className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-100 text-slate-800 text-sm dark:bg-white/10 dark:text-slate-200">
           <Download className="w-4 h-4" /> Download .md
         </button>
         <div className="mx-2 h-6 w-px bg-slate-200" />
         <button
           onClick={() => planTasks(tasks)}
-          className="inline-flex items-center gap-2 px-3 py-2 rounded-lg btn-gradient text-white text-sm shadow-sm"
+          className="inline-flex items-center gap-2 px-3 py-2 rounded-lg btn btn-primary text-white text-sm shadow-sm"
         >
           {planning ? <Loader className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />} Plan with Atlas
         </button>
@@ -158,7 +171,7 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onGenerateFromAnaly
 
       {/* Planning summary banner */}
       {plan && (
-        <div className="rounded-xl p-4 sm:p-5 neo-card border border-slate-200">
+        <MotionCard className="p-4 sm:p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <div className="text-sm text-slate-500">Estimated completion</div>
@@ -175,12 +188,12 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onGenerateFromAnaly
             </div>
           </div>
           {error && <div className="mt-2 text-xs text-amber-600">Used heuristic fallback: {error}</div>}
-        </div>
+        </MotionCard>
       )}
 
       {/* Transforming animation (in-page) */}
       {transforming && tasks.length > 0 && (
-        <div className="rounded-2xl p-6 sm:p-8 text-center neo-card border border-slate-200">
+        <div className="rounded-2xl p-6 sm:p-8 text-center card">
           <h4 className="text-lg font-semibold text-slate-800 mb-2">Transforming</h4>
           <p className="text-sm text-slate-600 mb-6">Generating structured tasks from your analysis</p>
           <div className="relative overflow-hidden rounded-full h-2 ocean-progress mb-6">
@@ -200,8 +213,8 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onGenerateFromAnaly
         </div>
       )}
 
-      {!transforming && view === 'list' && grouped.map(([label, items]) => (
-        <div key={label} className="rounded-xl neo-card border border-slate-200 p-4">
+      {!transforming && view === 'list' && grouped.map(([label, items], i) => (
+        <MotionCard key={label} className="p-4" delay={i * 0.05}>
           <div className="mb-3 flex items-center justify-between">
             <h4 className="text-sm font-semibold text-slate-600">{label}</h4>
             <div className="h-1 w-24 rounded-full bg-v-turquoise opacity-60" />
@@ -222,13 +235,13 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onGenerateFromAnaly
               </li>
             ))}
           </ul>
-        </div>
+        </MotionCard>
       ))}
 
       {!transforming && view === 'grid' && (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {grouped.map(([label, items]) => (
-            <div key={label} className="border rounded-xl p-6 bg-white hover:shadow-lg transition-shadow duration-300">
+          {grouped.map(([label, items], i) => (
+            <MotionCard key={label} className="p-6 hover:shadow-xl transition-shadow duration-300" delay={i * 0.05}>
               <div className="mb-4 flex items-center justify-between">
                 <h4 className="text-lg font-bold text-slate-800">{label}</h4>
                 <div className="w-20 h-1 rounded-full bg-v-turquoise/70" />
@@ -249,7 +262,7 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onGenerateFromAnaly
                   </li>
                 ))}
               </ul>
-            </div>
+            </MotionCard>
           ))}
         </div>
       )}

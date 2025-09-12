@@ -1,4 +1,5 @@
 import React from 'react';
+import { useToast } from './toast';
 
 interface AskViewProps {}
 
@@ -10,6 +11,7 @@ export const AskView: React.FC<AskViewProps> = () => {
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const toast = useToast();
 
   React.useEffect(() => {
     inputRef.current?.focus();
@@ -52,7 +54,9 @@ export const AskView: React.FC<AskViewProps> = () => {
       const data = (await resp.json()) as { role: 'assistant'; content: string };
       setAnswer(data.content || '');
     } catch (e: any) {
-      setError(e?.message || String(e));
+      const msg = e?.message || String(e);
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -114,7 +118,7 @@ export const AskView: React.FC<AskViewProps> = () => {
     <div className="max-w-3xl mx-auto">
       {/* Centered search bar */}
       <form onSubmit={onSubmit} className="mx-auto">
-        <div className="rounded-2xl neo-card p-3">
+        <div className="rounded-2xl card p-3">
           <input
             ref={inputRef}
             value={query}
@@ -129,7 +133,7 @@ export const AskView: React.FC<AskViewProps> = () => {
               type="submit"
               disabled={loading || query.trim().length === 0}
               className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-white text-sm shadow-sm ${
-                loading ? 'bg-slate-400 cursor-not-allowed' : 'btn-gradient'
+                loading ? 'bg-slate-400 cursor-not-allowed' : 'btn btn-primary'
               }`}
             >
               {loading ? 'Thinking…' : 'Ask'}
@@ -140,7 +144,7 @@ export const AskView: React.FC<AskViewProps> = () => {
 
       {/* Result */}
       {(error || annotated) && (
-        <div className="mt-6 rounded-xl neo-card p-5">
+        <div className="mt-6 rounded-xl card p-5">
           {error ? (
             <div className="text-red-600">{error}</div>
           ) : (
@@ -152,7 +156,7 @@ export const AskView: React.FC<AskViewProps> = () => {
                   <ul className="text-sm list-decimal pl-5 space-y-1 break-words">
                     {urls.map((u, i) => (
                       <li key={i}>
-                        <a href={u} target="_blank" rel="noreferrer" className="text-v-turquoise hover:underline">
+                        <a href={u} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">
                           {u}
                         </a>
                       </li>

@@ -16,9 +16,9 @@ export const SuggestionCard: React.FC<SuggestionCardProps> = ({ title, icon, ite
       case 'warning':
         return 'border-red-200 bg-red-50';
       case 'info':
-        return 'border-v-turquoise/30 bg-white';
+        return 'border-blue-200/50 bg-white dark:bg-white/5';
       case 'secondary':
-        return 'border-v-turquoise/20 bg-white';
+        return 'border-blue-200/40 bg-white dark:bg-white/5';
       default:
         return 'border-slate-200 bg-white';
     }
@@ -27,9 +27,9 @@ export const SuggestionCard: React.FC<SuggestionCardProps> = ({ title, icon, ite
   const list = Array.isArray(items) ? items : [];
   return (
     <div className={`export-block border rounded-xl p-6 ${getVariantStyles(variant)} hover:shadow-lg transition-shadow duration-300`}>
-      <div className="flex items-center space-x-3 mb-6">
-        <IconBadge size={40}>{icon}</IconBadge>
-        <h3 className="text-xl font-bold text-slate-800">{title}</h3>
+      <div className="flex items-center gap-3 mb-6">
+        <div className="shrink-0"><IconBadge size={40}>{icon}</IconBadge></div>
+        <h3 className="text-xl font-bold text-slate-800 leading-none">{title}</h3>
       </div>
       
       {list.length > 0 ? (

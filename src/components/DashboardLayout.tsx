@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Menu, X, Target, UploadCloud, BarChart3, MessageSquare, Waves, ListTodo, Search, User, KeyRound } from 'lucide-react';
+import { Target, UploadCloud, BarChart3, MessageSquare, Waves, ListTodo, Search, User, KeyRound, Sun, Moon } from 'lucide-react';
 import { IconBadge } from './IconBadge';
 import netlifyIdentity, { initIdentity, currentIdentityEmail } from '../utils/identity';
-import { Sun, Moon } from 'lucide-react';
+import { useToast } from './toast';
+import { initHoverGlow } from '../utils/hoverGlow';
 
 type View = 'ask' | 'guide' | 'upload' | 'analysis' | 'tasks';
 
@@ -34,6 +35,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   const [groqKey, setGroqKey] = useState<string>(() => { try { return localStorage.getItem('atlas:groqKey') || localStorage.getItem('varuna:groqKey') || ''; } catch { return ''; } });
   const [dbUrl, setDbUrl] = useState<string>(() => { try { return localStorage.getItem('atlas:dbUrl') || localStorage.getItem('varuna:dbUrl') || ''; } catch { return ''; } });
   const allowedDomain = (import.meta as any)?.env?.VITE_ALLOW_EMAIL_DOMAIN || '';
+  const toast = useToast();
   const [theme, setTheme] = useState<'light'|'dark'>(() => {
     try {
       const saved = localStorage.getItem('atlas:theme');
@@ -55,6 +57,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
   useEffect(() => {
     initIdentity();
+    initHoverGlow();
     const onLogin = () => {
       const e = currentIdentityEmail();
       if (e) saveEmail(e);
@@ -73,7 +76,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   function saveEmail(next: string) {
     const v = next.trim();
     if (allowedDomain && v && !v.toLowerCase().endsWith(`@${String(allowedDomain).toLowerCase()}`)) {
-      alert(`Email must end with @${allowedDomain}`);
+      toast.error(`Email must end with @${allowedDomain}`);
       return;
     }
     try { localStorage.setItem('atlas:recruiterEmail', v); } catch {}
@@ -110,8 +113,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           setMobileOpen(false);
         }}
         className={[
-          'w-full inline-flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
-          active ? 'nav-active-gradient text-white shadow-sm' : 'text-slate-700 hover:bg-slate-100',
+          'w-full inline-flex items-center justify-between gap-3 rounded-full px-3 py-2 text-sm transition-all border',
+          active
+            ? 'bg-gradient-to-r from-blue-600 via-indigo-500 to-sky-500 text-white border-transparent shadow-sm'
+            : 'text-slate-700 dark:text-slate-200 bg-white/60 dark:bg-white/5 backdrop-blur border-slate-200/70 dark:border-white/10 hover:shadow',
           disabled ? 'opacity-50 cursor-not-allowed' : '',
         ].join(' ')}
       >
@@ -120,7 +125,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           <span className="truncate">{label}</span>
         </span>
         {badge ? (
-          <span className="ml-2 inline-flex items-center justify-center text-[10px] leading-none font-semibold px-1.5 py-0.5 rounded-full bg-slate-200 text-slate-700 min-w-[1.25rem]">
+          <span className="ml-2 inline-flex items-center justify-center text-[10px] leading-none font-semibold px-1.5 py-0.5 rounded-full bg-white/70 dark:bg-white/10 text-slate-700 dark:text-slate-300 min-w-[1.25rem]">
             {badge}
           </span>
         ) : null}
@@ -128,144 +133,56 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     );
   };
 
-  const sidebar = (
-    <div className="flex h-full flex-col">
-      <div className="flex items-center gap-2 px-4 h-14 border-b border-slate-200">
-        <img
-          src="/logo/atlas-logo.png"
-          alt="Atlas logo"
-          className="h-8 w-auto select-none"
-          draggable={false}
-          onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/logo/varuna-logo.png'; }}
-        />
-        <div className="text-base font-semibold text-slate-800">Atlas</div>
-      </div>
-        <div className="p-3 space-y-1">
-          <div className="px-2 text-xs uppercase tracking-wide text-slate-500">Workspace</div>
-        <NavItem id="guide" label="Interview Guide" icon={<Target className="w-4 h-4" />} />
-        <NavItem id="upload" label="Upload Resume" icon={<UploadCloud className="w-4 h-4" />} />
-        <NavItem
-          id="analysis"
-          label="Analysis Results"
-          icon={<BarChart3 className="w-4 h-4" />}
-          disabled={!analysisAvailable}
-        />
-        <NavItem
-          id="tasks"
-          label="Tasks"
-          icon={<ListTodo className="w-4 h-4" />}
-          badge={tasksCount > 0 ? (tasksCount > 99 ? '99+' : tasksCount) : undefined}
-        />
-        <NavItem id="ask" label="Ask Atlas" icon={<Search className="w-4 h-4" />} />
-      </div>
-      <div className="mt-auto p-3">
-        <button
-          onClick={onOpenChat}
-          className="w-full inline-flex items-center justify-center gap-2 rounded-lg btn-gradient text-white px-3 py-2 text-sm shadow-sm transition-colors"
-        >
-          <MessageSquare className="w-4 h-4" />
-          Chat
-        </button>
-      </div>
+  const navSeg = (
+    <div className="ray-seg">
+      <button className={current==='guide'? 'active':''} onClick={() => onNavigate('guide')}><Target className="w-4 h-4 inline mr-1"/>Guide</button>
+      <button className={current==='upload'? 'active':''} onClick={() => onNavigate('upload')}><UploadCloud className="w-4 h-4 inline mr-1"/>Upload</button>
+      <button className={current==='analysis'? 'active':''} onClick={() => onNavigate('analysis')} disabled={!analysisAvailable}><BarChart3 className="w-4 h-4 inline mr-1"/>Analysis</button>
+      <button className={current==='tasks'? 'active':''} onClick={() => onNavigate('tasks')}><ListTodo className="w-4 h-4 inline mr-1"/>Tasks {tasksCount>0?`(${tasksCount>99?'99+':tasksCount})`:''}</button>
+      <button className={current==='ask'? 'active':''} onClick={() => onNavigate('ask')}><Search className="w-4 h-4 inline mr-1"/>Ask</button>
     </div>
   );
 
   return (
     <div className="relative min-h-screen">
-      {/* Fixed background layer for smooth scrolling */}
-      <div className="fixed inset-0 -z-10 ocean-bg gpu-layer" />
-      <div className="ocean-orb gpu-layer -z-10" style={{ left: '-120px', top: '10vh' }} />
-      <div className="ocean-orb gpu-layer -z-10" style={{ right: '-160px', bottom: '8vh' }} />
-      <div className="ocean-arc gpu-layer -z-10" style={{ right: '-20vw', top: '20vh' }} />
-      {/* Top bar */}
-      <div className="sticky top-0 z-40 backdrop-blur-sm supports-[backdrop-filter]:bg-white/60 bg-white/85 border-b border-slate-200 gpu-layer">
-        <div className="h-14 flex items-center justify-between px-3 sm:px-4">
-          <div className="flex items-center gap-2">
-            <button
-              className="p-2 rounded-lg hover:bg-slate-100 text-slate-700 lg:hidden"
-              onClick={() => setMobileOpen((v) => !v)}
-              aria-label="Toggle sidebar"
-            >
-              {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
-            <div className="hidden lg:flex items-center gap-3">
-              <IconBadge size={32}>
-                <Waves className="w-4 h-4" />
-              </IconBadge>
-              <div className="text-sm font-semibold text-slate-800">Wingman</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            {/* Theme toggle */}
-            <button
-              onClick={toggleTheme}
-              className="inline-flex items-center gap-2 rounded-lg bg-white border border-slate-200 text-slate-700 px-3 py-2 text-sm shadow-sm"
-              title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-            >
-              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-              <span className="hidden sm:inline">{theme === 'dark' ? 'Light' : 'Dark'}</span>
-            </button>
-            <button
-              onClick={onOpenChat}
-              className="hidden sm:inline-flex items-center gap-2 rounded-lg btn-gradient text-white px-3 py-2 text-sm shadow-sm"
-            >
-              <MessageSquare className="w-4 h-4" />
-              Chat
-            </button>
-            <button
-              onClick={() => setIdentityOpen(true)}
-              className="inline-flex items-center gap-2 rounded-lg bg-white border border-slate-200 text-slate-700 px-3 py-2 text-sm shadow-sm"
-              title={email ? `Signed in as ${email}` : 'Set your work email'}
-            >
-              <User className="w-4 h-4" />
-              <span className="hidden sm:inline">{email ? email : 'Identify'}</span>
-            </button>
-            <button
-              onClick={() => setGroqKeyOpen(true)}
-              className="inline-flex items-center gap-2 rounded-lg bg-white border border-slate-200 text-slate-700 px-3 py-2 text-sm shadow-sm"
-              title={groqKey ? 'API key set' : 'Set GROQ API key'}
-            >
-              <KeyRound className="w-4 h-4" />
-              <span className="hidden sm:inline">{groqKey ? 'Key set' : 'Set API Key'}</span>
-            </button>
-            <button
-              onClick={() => netlifyIdentity.open()}
-              className="inline-flex items-center gap-2 rounded-lg bg-slate-800 text-white px-3 py-2 text-sm shadow-sm"
-              title="Sign in with Netlify Identity"
-            >
-              Sign in
-            </button>
-          </div>
-        </div>
+      {/* Background */}
+      <div className="fixed inset-0 -z-10 ray-bg gpu-layer" />
+
+      {/* Floating controls (headless; no header box) */}
+      <div className="fixed top-3 right-3 z-40 flex items-center gap-2">
+        <button
+          onClick={() => setIdentityOpen(true)}
+          className="ray-btn"
+          title={email ? `Signed in as ${email}` : 'Set your work email'}
+        >
+          <User className="w-4 h-4" />
+          <span className="hidden sm:inline">{email ? email : 'Identify'}</span>
+        </button>
+        <button onClick={() => setGroqKeyOpen(true)} className="ray-btn" title={groqKey ? 'API key set' : 'Set GROQ API key'}>
+          <KeyRound className="w-4 h-4" />
+          <span className="hidden sm:inline">{groqKey ? 'Key' : 'Set Key'}</span>
+        </button>
+        <button onClick={onOpenChat} className="ray-btn-primary ray-btn">
+          <MessageSquare className="w-4 h-4" />
+          <span className="hidden sm:inline">Chat</span>
+        </button>
+        <button onClick={toggleTheme} className="ray-btn" title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}>
+          {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+        </button>
       </div>
 
       {/* Shell */}
-      <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr]">
-          {/* Sidebar - desktop */}
-          <aside className="hidden lg:block h-[calc(100vh-56px)] sticky top-14 border-r border-slate-200 bg-white">
-            {sidebar}
-          </aside>
-
-          {/* Sidebar - mobile overlay */}
-          {mobileOpen && (
-            <div className="lg:hidden fixed inset-0 z-30">
-              <div className="absolute inset-0 bg-black/30" onClick={() => setMobileOpen(false)} />
-            <div className="absolute left-0 top-14 bottom-0 w-[85%] max-w-[280px] bg-white border-r border-slate-200 shadow-xl">
-              {sidebar}
-            </div>
-          </div>
-          )}
-
-          {/* Main content */}
-          <main className="min-h-[calc(100vh-56px)] p-4 lg:p-8">
-            <div className="mx-auto w-full max-w-7xl space-y-6">{children}</div>
-          </main>
+      <main className="min-h-screen p-4 lg:p-8">
+        <div className="mx-auto w-full max-w-6xl space-y-6 ray-window p-4 sm:p-6">
+          <div className="flex justify-center">{navSeg}</div>
+          {children}
         </div>
+      </main>
       {/* Identity modal */}
       {identityOpen && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center">
           <div className="absolute inset-0 bg-black/40" onClick={() => setIdentityOpen(false)} />
-          <div className="relative w-[92vw] max-w-md rounded-2xl bg-white border border-slate-200 shadow-2xl p-6">
+          <div className="relative w-[92vw] max-w-md card shadow-2xl">
             <h4 className="text-lg font-semibold text-slate-800 mb-2">Your Work Email</h4>
             <p className="text-sm text-slate-600 mb-4">
               {allowedDomain
@@ -277,11 +194,11 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder={`you@${allowedDomain || 'company.com'}`}
-              className="w-full rounded-xl border border-slate-300 px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-v-turquoise/40"
+              className="input"
             />
             <div className="mt-5 flex justify-end gap-3">
-              <button onClick={() => setIdentityOpen(false)} className="px-4 py-2 rounded-xl bg-slate-100 text-slate-800">Cancel</button>
-              <button onClick={() => saveEmail(email)} className="px-4 py-2 rounded-xl btn-gradient text-white">Save</button>
+              <button onClick={() => setIdentityOpen(false)} className="btn btn-secondary !rounded-xl">Cancel</button>
+              <button onClick={() => saveEmail(email)} className="btn btn-primary !rounded-xl">Save</button>
             </div>
           </div>
         </div>
@@ -289,7 +206,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       {groqKeyOpen && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center">
           <div className="absolute inset-0 bg-black/40" onClick={() => setGroqKeyOpen(false)} />
-          <div className="relative w-[92vw] max-w-md rounded-2xl bg-white border border-slate-200 shadow-2xl p-6">
+          <div className="relative w-[92vw] max-w-md card shadow-2xl">
             <h4 className="text-lg font-semibold text-slate-800 mb-2">Server Credentials</h4>
             <p className="text-sm text-slate-600 mb-4">These are stored in your browser and sent to your Netlify Functions with each request (for internal testing without Netlify env vars).</p>
             <input
@@ -297,20 +214,20 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               value={groqKey}
               onChange={(e) => setGroqKey(e.target.value)}
               placeholder="gsk_..."
-              className="w-full rounded-xl border border-slate-300 px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-v-turquoise/40"
+              className="input"
             />
             <input
               type="text"
               value={dbUrl}
               onChange={(e) => setDbUrl(e.target.value)}
               placeholder="postgresql://…?sslmode=require"
-              className="w-full mt-3 rounded-xl border border-slate-300 px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-v-turquoise/40"
+              className="input mt-3"
             />
             <div className="mt-5 flex justify-between gap-3">
-              <button onClick={() => { setGroqKey(''); setDbUrl(''); saveGroqKey(''); saveDbUrl(''); }} className="px-4 py-2 rounded-xl bg-slate-100 text-slate-800">Clear</button>
+              <button onClick={() => { setGroqKey(''); setDbUrl(''); saveGroqKey(''); saveDbUrl(''); }} className="btn btn-secondary !rounded-xl">Clear</button>
               <div className="flex gap-3">
-                <button onClick={() => setGroqKeyOpen(false)} className="px-4 py-2 rounded-xl bg-slate-100 text-slate-800">Cancel</button>
-                <button onClick={() => { saveGroqKey(groqKey); saveDbUrl(dbUrl); }} className="px-4 py-2 rounded-xl btn-gradient text-white">Save</button>
+                <button onClick={() => setGroqKeyOpen(false)} className="btn btn-secondary !rounded-xl">Cancel</button>
+                <button onClick={() => { saveGroqKey(groqKey); saveDbUrl(dbUrl); }} className="btn btn-primary !rounded-xl">Save</button>
               </div>
             </div>
           </div>
