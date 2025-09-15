@@ -2,11 +2,12 @@ import React, { useMemo, useState } from 'react';
 import { InterviewGuide } from './components/InterviewGuide';
 import { FileUpload } from './components/FileUpload';
 import { AnalysisResults } from './components/AnalysisResults';
-import { ChatAssistant } from './components/ChatAssistant';
-import { AskView } from './components/AskView';
+// Side panel chat replaced by standalone view
+import { ChatPage } from './components/ChatPage';
 import { DashboardLayout } from './components/DashboardLayout';
 import { TasksView } from './components/TasksView';
-import type { TaskItem } from './components/TaskPanel';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import type { TaskItem } from './types/tasks';
 import { useToast } from './components/toast';
 
 export interface ResumeAnalysis {
@@ -27,10 +28,10 @@ export interface ResumeAnalysis {
 }
 
 function App() {
-  const [currentView, setCurrentView] = useState<'ask' | 'guide' | 'upload' | 'analysis' | 'tasks'>('guide');
+  const [currentView, setCurrentView] = useState<'guide' | 'upload' | 'analysis' | 'tasks' | 'chat'>('guide');
   const [analysisData, setAnalysisData] = useState<ResumeAnalysis | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [chatOpen, setChatOpen] = useState(false);
+  // Removed side-panel chat state; using dedicated view instead
   const [tasks, setTasks] = useState<TaskItem[]>([]);
   const [tasksTransformToken, setTasksTransformToken] = useState<string | null>(null);
   const [tasksPlanToken, setTasksPlanToken] = useState<string | null>(null);
@@ -248,26 +249,45 @@ function App() {
 
   const generateTasksFromAnalysis = (analysis: ResumeAnalysis): TaskItem[] => {
     const items: TaskItem[] = [];
+    const pushIf = (obj: Partial<TaskItem>) => {
+      const id = String(obj.id || '').trim();
+      const text = String(obj.text || '').trim();
+      if (!id || !text) return;
+      const source = (obj as any).source || { kind: 'critical' };
+      items.push({ id, text, source } as TaskItem);
+    };
     Object.entries(analysis.sections).forEach(([section, data]) => {
-      (data.suggestions || []).forEach((text, idx) => {
-        items.push({ id: `section-${section}-${idx}`, text, source: { kind: 'section', section } });
+      (data.suggestions || [])
+        .map((s) => (typeof s === 'string' ? s.trim() : ''))
+        .filter(Boolean)
+        .forEach((text, idx) => {
+          pushIf({ id: `section-${section}-${idx}`, text, source: { kind: 'section', section } });
+        });
+    });
+    (analysis.criticalImprovements || [])
+      .map((s) => (typeof s === 'string' ? s.trim() : ''))
+      .filter(Boolean)
+      .forEach((text, idx) => {
+        pushIf({ id: `critical-${idx}`, text, source: { kind: 'critical' } });
       });
-    });
-    (analysis.criticalImprovements || []).forEach((text, idx) => {
-      items.push({ id: `critical-${idx}`, text, source: { kind: 'critical' } });
-    });
-    (analysis.atsOptimization || []).forEach((text, idx) => {
-      items.push({ id: `ats-${idx}`, text, source: { kind: 'ats' } });
-    });
-    (analysis.industrySpecific || []).forEach((text, idx) => {
-      items.push({ id: `industry-${idx}`, text, source: { kind: 'industry' } });
-    });
+    (analysis.atsOptimization || [])
+      .map((s) => (typeof s === 'string' ? s.trim() : ''))
+      .filter(Boolean)
+      .forEach((text, idx) => {
+        pushIf({ id: `ats-${idx}`, text, source: { kind: 'ats' } });
+      });
+    (analysis.industrySpecific || [])
+      .map((s) => (typeof s === 'string' ? s.trim() : ''))
+      .filter(Boolean)
+      .forEach((text, idx) => {
+        pushIf({ id: `industry-${idx}`, text, source: { kind: 'industry' } });
+      });
     return items;
   };
 
   const pageTitle =
-    currentView === 'ask'
-      ? 'Ask Atlas'
+    currentView === 'chat'
+      ? 'Atlas Assistant'
       : currentView === 'guide'
       ? 'Interview Guide'
       : currentView === 'upload'
@@ -277,8 +297,8 @@ function App() {
       : 'Tasks';
 
   const pageSubtitle =
-    currentView === 'ask'
-      ? 'Quick answers with inline sources and follow-ups.'
+    currentView === 'chat'
+      ? 'Context-aware help across uploads, scores, suggestions, and tasks.'
       : currentView === 'guide'
       ? "Prep with structured guidance and examples."
       : currentView === 'upload'
@@ -297,8 +317,9 @@ function App() {
         if (v === 'analysis' && !analysisData) return;
         setCurrentView(v);
       }}
-      onOpenChat={() => setChatOpen(true)}
+      onOpenChat={() => setCurrentView('chat')}
     >
+      <ErrorBoundary>
       {/* Page header (hidden on Interview Guide) */}
       {currentView !== 'guide' && (
         <section className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
@@ -310,11 +331,7 @@ function App() {
       )}
 
       {/* Main content panels */}
-      {currentView === 'ask' && (
-        <section className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
-          <AskView />
-        </section>
-      )}
+      {/* Removed legacy Ask view; use Atlas Assistant instead */}
 
       {currentView === 'guide' && (
         <section className="card p-4 sm:p-6">
@@ -357,9 +374,9 @@ function App() {
       </section>
     )}
 
-    {currentView === 'tasks' && (
-      <section className="card p-2 sm:p-3 md:p-4">
-        <TasksView
+      {currentView === 'tasks' && (
+        <section className="card p-2 sm:p-3 md:p-4">
+          <TasksView
           tasks={tasks}
           onGenerateFromAnalysis={() => {
             if (analysisData) {
@@ -375,10 +392,12 @@ function App() {
       </section>
     )}
 
-      {/* Chat Assistant */}
-      <ChatAssistant open={chatOpen} onClose={() => setChatOpen(false)} />
+      {currentView === 'chat' && (
+        <ChatPage analysis={analysisData} tasks={tasks} candidateName={candidateName} />
+      )}
 
       {/* No side panel in the new flow */}
+      </ErrorBoundary>
     </DashboardLayout>
   );
 }

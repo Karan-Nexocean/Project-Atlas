@@ -227,7 +227,7 @@ Rules:
           res.end(JSON.stringify({ error: err?.message || 'Internal error' }));
         }
       });
-      // Simple chat endpoint for the Wingman assistant (inside Atlas)
+      // Simple chat endpoint for the Atlas Assistant (inside Atlas)
       server.middlewares.use('/api/chat', async (req, res) => {
         try {
           const auth = checkAuthOrReject(req, res);
@@ -244,6 +244,7 @@ Rules:
           });
           const body = JSON.parse(Buffer.concat(chunks).toString('utf8')) as {
             messages: { role: 'user' | 'assistant'; content: string }[];
+            context?: { candidateName?: string; analysis?: any; tasks?: any[] };
           };
           const apiKey = process.env.GROQ_API_KEY;
           if (!apiKey) {
@@ -253,10 +254,10 @@ Rules:
           }
           const groq = new Groq({ apiKey });
 
-          const systemPrompt = `You are Wingman — Nexocean’s digital mascot — assisting users inside Atlas, our resume analysis tool, embedded in a React + Vite + Tailwind app.
+          const systemPrompt = `You are Atlas Assistant — Nexocean’s in‑app assistant for Atlas, our resume analysis tool (React + Vite + Tailwind).
 
 Context you know about this project:
-- Name: Atlas — Resume Analyzer (tool under Wingman; company: Nexocean). Includes Interview Guide + AI Resume Analysis views.
+- Name: Atlas — Resume Analyzer (company: Nexocean). Includes Interview Guide + AI Resume Analysis views.
 - Design: Tailwind CSS, brand tokens via CSS variables ( --brand-blue, --brand-coral, --brand-butter, --brand-lavender, --brand-cream ). Base font is Satoshi.
 - Resume analysis schema with sections: contact, summary, experience, skills, education, formatting, stability; overallScore 0–100; concrete, actionable suggestions.
 - Users can upload text or PDF resumes; PDFs are parsed server-side. The app normalizes analysis into a strict shape before rendering.
@@ -274,11 +275,26 @@ Operating rules:
 - American English. No sensitive personal data.
 `;
 
+          // Attach optional app-side context (latest analysis, tasks, candidate)
+          const ctx = body?.context || {};
+          const contextJSON = (() => {
+            try {
+              return JSON.stringify({
+                candidateName: ctx.candidateName || null,
+                analysis: ctx.analysis || null,
+                tasks: Array.isArray(ctx.tasks) ? ctx.tasks.slice(0, 200) : [],
+              }, null, 2).slice(0, 6000);
+            } catch { return ''; }
+          })();
+          const systemWithContext = contextJSON
+            ? systemPrompt + `\n\nApp Context (JSON):\n${contextJSON}\n\nUse this context to ground your answers. If context is missing a detail, ask a brief clarifying question.`
+            : systemPrompt;
+
           const history = (body.messages || []).slice(-16); // cap context
           const completion = await groq.chat.completions.create({
             model: 'openai/gpt-oss-120b',
             messages: [
-              { role: 'system', content: systemPrompt },
+              { role: 'system', content: systemWithContext },
               // forward prior turns
               ...history.map((m) => ({ role: m.role, content: m.content } as any)),
             ],

@@ -5,7 +5,7 @@ import { ScoreCard } from './ScoreCard';
 import { SuggestionCard } from './SuggestionCard';
 import { Motion, MotionCard } from './motion';
 import { ArrowLeft, Download, ShipWheel, Anchor, Waves, Sailboat } from 'lucide-react';
-import type { TaskItem } from './TaskPanel';
+import type { TaskItem } from '../types/tasks';
 import { estimatePlanFromTasks } from '../utils/plan';
 
 interface AnalysisResultsProps {
@@ -156,7 +156,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, cand
 
       {/* Action Items */}
       <div className="rounded-2xl p-8 mt-12 text-white text-center" style={{ backgroundImage: 'linear-gradient(135deg, rgb(37,99,235), rgb(14,165,233))' }} data-html2canvas-ignore>
-        <h3 className="text-2xl font-bold mb-4">Ask Atlas to plan your tasks?</h3>
+        <h3 className="text-2xl font-bold mb-4">Plan with Atlas Assistant?</h3>
         <p className="mb-6 opacity-90">
           Atlas can help you implement these suggestions and increase your chance of landing interviews
         </p>
@@ -166,7 +166,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, cand
             className="btn btn-secondary !rounded-lg border-white/60 text-white hover:text-slate-900"
             data-html2canvas-ignore="true"
           >
-            Ask Atlas to Plan Tasks
+            Plan with Atlas Assistant
           </button>
         </div>
       </div>

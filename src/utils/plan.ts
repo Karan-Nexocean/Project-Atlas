@@ -1,4 +1,4 @@
-import type { TaskItem } from '../components/TaskPanel';
+import type { TaskItem } from '../types/tasks';
 
 export interface SimplePlan {
   minMinutes: number;
@@ -43,4 +43,3 @@ export function estimatePlanFromTasks(tasks: TaskItem[]): SimplePlan {
   }
   return { minMinutes: min, maxMinutes: max };
 }
-

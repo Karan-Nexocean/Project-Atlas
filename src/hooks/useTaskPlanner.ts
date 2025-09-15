@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import type { TaskItem } from '../components/TaskPanel';
+import type { TaskItem } from '../types/tasks';
 
 export interface PlanBucket {
   label: string;
@@ -63,6 +63,34 @@ function heuristicPlan(tasks: TaskItem[]): TaskPlan {
   };
 }
 
+function normalizeNumber(n: any, fallback = 0): number {
+  const v = Number(n);
+  return Number.isFinite(v) ? v : fallback;
+}
+
+function normalizePlan(raw: any, tasks: TaskItem[]): TaskPlan {
+  try {
+    const bucketsIn = Array.isArray(raw?.buckets) ? raw.buckets : [];
+    const buckets: PlanBucket[] = bucketsIn.map((b: any) => ({
+      label: String(b?.label ?? 'Work'),
+      count: Math.max(0, Math.floor(normalizeNumber(b?.count, 0))),
+      estHours: Math.max(0, normalizeNumber(b?.estHours, 0)),
+    })).filter((b: PlanBucket) => b.label.length > 0);
+    // If the model didn't provide buckets, fall back to a simple split
+    const base = heuristicPlan(tasks);
+    const totalMin = normalizeNumber(raw?.totalHoursMin, base.totalHoursMin);
+    const totalMax = normalizeNumber(raw?.totalHoursMax, base.totalHoursMax);
+    return {
+      totalHoursMin: Math.max(1, Math.round(totalMin)),
+      totalHoursMax: Math.max(1, Math.round(totalMax)),
+      buckets: buckets.length ? buckets : base.buckets,
+      notes: Array.isArray(raw?.notes) ? raw.notes.map((s: any) => String(s)) : base.notes,
+    };
+  } catch {
+    return heuristicPlan(tasks);
+  }
+}
+
 export function useTaskPlanner() {
   const [planning, setPlanning] = useState(false);
   const [plan, setPlan] = useState<TaskPlan | null>(null);
@@ -107,7 +135,7 @@ export function useTaskPlanner() {
       const data = await resp.json();
       const raw = typeof data?.content === 'string' ? data.content : String(data);
       const json = tryExtractJSONObject(raw);
-      const chosen = json && typeof json.totalHoursMin === 'number' ? json : heuristicPlan(tasks);
+      const chosen = json ? normalizePlan(json, tasks) : heuristicPlan(tasks);
       setPlan(chosen);
       return chosen;
     } catch (e: any) {

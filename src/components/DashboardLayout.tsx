@@ -5,7 +5,7 @@ import netlifyIdentity, { initIdentity, currentIdentityEmail } from '../utils/id
 import { useToast } from './toast';
 import { initHoverGlow } from '../utils/hoverGlow';
 
-type View = 'ask' | 'guide' | 'upload' | 'analysis' | 'tasks';
+type View = 'guide' | 'upload' | 'analysis' | 'tasks' | 'chat';
 
 interface DashboardLayoutProps {
   current: View;
@@ -139,7 +139,14 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       <button className={current==='upload'? 'active':''} onClick={() => onNavigate('upload')}><UploadCloud className="w-4 h-4 inline mr-1"/>Upload</button>
       <button className={current==='analysis'? 'active':''} onClick={() => onNavigate('analysis')} disabled={!analysisAvailable}><BarChart3 className="w-4 h-4 inline mr-1"/>Analysis</button>
       <button className={current==='tasks'? 'active':''} onClick={() => onNavigate('tasks')}><ListTodo className="w-4 h-4 inline mr-1"/>Tasks {tasksCount>0?`(${tasksCount>99?'99+':tasksCount})`:''}</button>
-      <button className={current==='ask'? 'active':''} onClick={() => onNavigate('ask')}><Search className="w-4 h-4 inline mr-1"/>Ask</button>
+      <button
+        className={(current==='chat'? 'active ':'') + 'atlas-assistant-pill'}
+        onClick={() => onNavigate('chat')}
+        title="Atlas Assistant"
+      >
+        <MessageSquare className="w-4 h-4 inline mr-1"/>
+        Atlas Assistant
+      </button>
     </div>
   );
 
@@ -162,10 +169,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           <KeyRound className="w-4 h-4" />
           <span className="hidden sm:inline">{groqKey ? 'Key' : 'Set Key'}</span>
         </button>
-        <button onClick={onOpenChat} className="ray-btn-primary ray-btn">
-          <MessageSquare className="w-4 h-4" />
-          <span className="hidden sm:inline">Chat</span>
-        </button>
+        {/* Chat button removed; use main nav 'Atlas Assistant' */}
         <button onClick={toggleTheme} className="ray-btn" title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}>
           {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
         </button>

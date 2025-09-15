@@ -32,7 +32,7 @@ export const Header: React.FC<{ onOpenChat?: () => void }> = ({ onOpenChat }) =>
             <button
               type="button"
               onClick={onOpenChat}
-              className="inline-flex items-center gap-2 btn btn-primary !rounded-lg px-3 py-2 text-sm shadow-sm transition-colors"
+              className="ray-btn ray-btn-primary"
             >
               <MessageSquare className="w-4 h-4" />
               Chat
@@ -44,7 +44,7 @@ export const Header: React.FC<{ onOpenChat?: () => void }> = ({ onOpenChat }) =>
               type="button"
               aria-label="Open chat"
               onClick={onOpenChat}
-              className="p-2 rounded-lg btn btn-primary text-white shadow-sm"
+              className="ray-btn ray-btn-primary"
             >
               <MessageSquare className="w-5 h-5" />
             </button>

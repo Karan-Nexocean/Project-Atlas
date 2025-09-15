@@ -15,9 +15,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "framer-motion": "^11.2.10",
     "@neondatabase/serverless": "^0.10.4",
     "@netlify/blobs": "^6.5.0",
+    "framer-motion": "^11.2.10",
     "groq-sdk": "^0.5.0",
     "jspdf": "^2.5.2",
     "jspdf-autotable": "^3.8.2",
@@ -39,6 +39,8 @@
     "eslint-plugin-react-refresh": "^0.4.11",
     "globals": "^15.9.0",
     "postcss": "^8.4.35",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.3.0",

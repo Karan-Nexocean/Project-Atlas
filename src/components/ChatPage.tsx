@@ -1,16 +1,16 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { X, Send, Waves } from 'lucide-react';
+import { Send, Waves } from 'lucide-react';
 import { IconBadge } from './IconBadge';
 import { MarkdownRenderer } from './MarkdownRenderer';
+import type { TaskItem } from '../types/tasks';
 
 type Msg = { role: 'user' | 'assistant'; content: string };
 
-interface ChatAssistantProps {
-  open: boolean;
-  onClose: () => void;
-}
-
-export const ChatAssistant: React.FC<ChatAssistantProps> = ({ open, onClose }) => {
+export const ChatPage: React.FC<{
+  analysis: any | null;
+  tasks: TaskItem[];
+  candidateName: string;
+}> = ({ analysis, tasks, candidateName }) => {
   const [messages, setMessages] = useState<Msg[]>([
     {
       role: 'assistant',
@@ -24,7 +24,7 @@ export const ChatAssistant: React.FC<ChatAssistantProps> = ({ open, onClose }) =
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, open]);
+  }, [messages]);
 
   const canSend = useMemo(() => input.trim().length > 0 && !sending, [input, sending]);
 
@@ -56,7 +56,14 @@ export const ChatAssistant: React.FC<ChatAssistantProps> = ({ open, onClose }) =
       const resp = await fetch('/api/chat', {
         method: 'POST',
         headers,
-        body: JSON.stringify({ messages: next.map(({ role, content }) => ({ role, content })) }),
+        body: JSON.stringify({
+          messages: next.map(({ role, content }) => ({ role, content })),
+          context: {
+            candidateName: candidateName || null,
+            analysis: analysis || null,
+            tasks: Array.isArray(tasks) ? tasks.slice(0, 100) : [],
+          },
+        }),
       });
       if (!resp.ok) {
         const detail = await resp.text();
@@ -81,40 +88,26 @@ export const ChatAssistant: React.FC<ChatAssistantProps> = ({ open, onClose }) =
     }
   }
 
-  if (!open) return null;
-
   return (
-    <div className="fixed inset-0 z-[60]">
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
-
-      {/* Panel */}
-      <div className="absolute right-0 top-0 h-full w-full sm:w-[28rem] md:w-[32rem] bg-white/70 dark:bg-white/5 backdrop-blur border-l border-slate-200 dark:border-white/10 shadow-2xl flex flex-col">
-        {/* Header */}
-        <div className="px-4 py-3 border-b border-slate-200 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <IconBadge size={32}>
-              <Waves className="w-4 h-4" />
-            </IconBadge>
-            <div>
-              <div className="text-slate-800 font-semibold">Atlas Assistant</div>
-              <div className="text-xs text-slate-500">ATS, resume tips, interview prep</div>
-            </div>
-          </div>
-          <button onClick={onClose} className="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300" aria-label="Close chat">
-            <X className="w-5 h-5" />
-          </button>
+    <div className="card p-4 sm:p-6 flex flex-col h-[70vh]">
+      <div className="flex items-center gap-2 mb-3">
+        <IconBadge size={32}>
+          <Waves className="w-4 h-4" />
+        </IconBadge>
+        <div>
+          <div className="text-slate-800 font-semibold">Atlas Assistant</div>
+          <div className="text-xs text-slate-500">ATS, resume tips, interview prep</div>
         </div>
+      </div>
 
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 pretty-scrollbar">
+      <div className="flex-1 overflow-y-auto px-1 py-2 space-y-3 pretty-scrollbar">
           {messages.map((m, i) => (
             <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div
                 className={
-                  m.role === 'user'
-                    ? 'max-w-[85%] rounded-2xl px-3 py-2 bubble-user-gradient text-white shadow'
-                    : 'max-w-[85%] rounded-2xl px-3 py-2 bg-slate-100 dark:bg-white/10 text-slate-800 dark:text-slate-100 shadow'
+                m.role === 'user'
+                  ? 'max-w-[85%] rounded-2xl px-3 py-2 bubble-user-gradient text-white shadow'
+                  : 'max-w-[85%] rounded-2xl px-3 py-2 bg-slate-100 dark:bg-white/10 text-slate-800 dark:text-slate-100 shadow'
                 }
               >
                 {m.role === 'assistant' ? (
@@ -125,36 +118,36 @@ export const ChatAssistant: React.FC<ChatAssistantProps> = ({ open, onClose }) =
               </div>
             </div>
           ))}
-          <div ref={endRef} />
-        </div>
+        <div ref={endRef} />
+      </div>
 
-        {/* Composer */}
-        <div className="border-t border-slate-200 p-3">
-          <div className="flex items-end gap-2">
-            <textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={onKeyDown}
-              rows={1}
-              placeholder="Ask about ATS, phrasing bullets, or this app..."
-              className="flex-1 textarea text-slate-800 dark:text-slate-200"
-            />
-            <button
-              disabled={!canSend}
-              onClick={handleSend}
-              className={`inline-flex items-center gap-2 px-3 py-2 rounded-xl text-white shadow-sm transition-colors ${
-                canSend ? 'btn btn-primary !rounded-xl' : 'bg-slate-400 cursor-not-allowed'
-              }`}
-            >
-              <Send className="w-4 h-4" />
-              <span className="text-sm">Send</span>
-            </button>
-          </div>
-          {sending && (
-            <div className="mt-2 text-xs text-slate-500">Atlas Assistant is thinking…</div>
-          )}
+      <div className="border-t border-slate-200 pt-3 mt-3">
+        <div className="flex items-end gap-2">
+          <textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={onKeyDown}
+            rows={1}
+            placeholder="Ask about ATS, phrasing bullets, or this app..."
+            className="flex-1 textarea text-slate-800 dark:text-slate-200"
+          />
+          <button
+            disabled={!canSend}
+            onClick={handleSend}
+            className={`inline-flex items-center gap-2 px-3 py-2 rounded-xl text-white shadow-sm transition-colors ${
+              canSend ? 'btn btn-primary !rounded-xl' : 'bg-slate-400 cursor-not-allowed'
+            }`}
+          >
+            <Send className="w-4 h-4" />
+            <span className="text-sm">Send</span>
+          </button>
         </div>
+        {sending && (
+          <div className="mt-2 text-xs text-slate-500">Atlas Assistant is thinking…</div>
+        )}
       </div>
     </div>
   );
 };
+
+export default ChatPage;

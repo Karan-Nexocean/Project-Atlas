@@ -2,8 +2,8 @@ import React from 'react';
 import { motion, Variants } from 'framer-motion';
 
 const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 12, filter: 'blur(2px)' },
-  show:   { opacity: 1, y: 0,  filter: 'blur(0px)', transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] } },
+  hidden: { opacity: 0, y: 12 },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] } },
 };
 
 export const Motion: React.FC<React.PropsWithChildren<{ className?: string; delay?: number }>> = ({ className, children, delay = 0 }) => (
@@ -49,4 +49,3 @@ export const Stagger: React.FC<React.PropsWithChildren<{ className?: string; sta
     ))}
   </motion.div>
 );
-
