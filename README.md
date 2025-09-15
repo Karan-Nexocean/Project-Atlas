@@ -55,8 +55,13 @@ Notes:
   npm run preview
 
 ## Deploy to Vercel
-- This repo includes Vercel serverless functions under `api/` and a `vercel.json` for routing. Configure env vars in Vercel Project Settings, then deploy via Git.
-
+- This repo includes Vercel serverless functions under `api/` and relies on Vercel dashboard settings (no `vercel.json` committed) for maximum compatibility.
+- Configure in Vercel Project Settings:
+  - Build & Output: Build Command `npm run build`, Output Directory `dist`, Install Command `npm ci`.
+  - Functions: Node.js 20 runtime (Project → Settings → Functions → Node.js Version = 20).
+  - Routing: Add a single Rewrite for SPA routing — Source: `/(.*)` Destination: `/`.
+  - Environment Variables: set `GROQ_API_KEY` (required), optionally `ALLOW_EMAIL_DOMAIN`, `SLACK_WEBHOOK_URL`, `NEON_DATABASE_URL`.
+- CI includes a guard (`.github/workflows/verify-vercel-config.yml`) that fails if a `vercel.json` (or legacy `builds` stanza) is committed by mistake.
 ## Notes
 - Secrets: `.env.local` is git-ignored; never commit real keys. If a key was shared or committed elsewhere, rotate it.
 - Fonts: Satoshi is loaded from Fontshare CDN.
