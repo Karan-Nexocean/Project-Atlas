@@ -1,16 +1,15 @@
 {
   "version": 2,
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
   "functions": {
     "api/*.ts": {
-      "runtime": "nodejs20.x",
+      "runtime": "vercel-node@3.0.0",
       "memory": 512,
       "maxDuration": 30
     }
   },
   "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/"
-    }
+    { "source": "/(.*)", "destination": "/" }
   ]
 }
