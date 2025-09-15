@@ -54,8 +54,8 @@ Notes:
 - Preview static build (no dev APIs):
   npm run preview
 
-## Deploy to Netlify
-- See docs/DEPLOY_NETLIFY.md for step-by-step instructions. This repo already includes netlify/functions and netlify.toml so your frontend calls to /api/* will route to serverless functions in production.
+## Deploy to Vercel
+- This repo includes Vercel serverless functions under `api/` and a `vercel.json` for routing. Configure env vars in Vercel Project Settings, then deploy via Git.
 
 ## Notes
 - Secrets: `.env.local` is git-ignored; never commit real keys. If a key was shared or committed elsewhere, rotate it.

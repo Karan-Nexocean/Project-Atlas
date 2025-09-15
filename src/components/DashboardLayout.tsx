@@ -220,7 +220,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           <div className="absolute inset-0 bg-black/40" onClick={() => setGroqKeyOpen(false)} />
           <div className="relative w-[92vw] max-w-md card shadow-2xl">
             <h4 className="text-lg font-semibold text-slate-800 mb-2">Server Credentials</h4>
-            <p className="text-sm text-slate-600 mb-4">These are stored in your browser and sent to your Netlify Functions with each request (for internal testing without Netlify env vars).</p>
+            <p className="text-sm text-slate-600 mb-4">These are stored in your browser and sent to your serverless API with each request (for internal testing without platform env vars).</p>
             <input
               type="password"
               value={groqKey}
