@@ -259,7 +259,6 @@ export const InterviewGuide: React.FC<InterviewGuideProps> = ({ onStartAnalysis 
             src="/logo/atlas-logo.png"
             alt="Atlas logo"
             className="h-16 w-16 md:h-20 md:w-20 object-contain"
-            onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/logo/varuna-logo.png'; }}
           />
         </div>
         <div className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-blue-600 via-indigo-500 to-sky-500 bg-clip-text text-transparent mb-6">

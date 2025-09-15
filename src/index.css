@@ -450,6 +450,50 @@
   .ray-seg button.atlas-assistant-pill:hover::after { animation-duration: 1.8s; }
 }
 
+/* Ambient UI blobs + cursor glow */
+@layer utilities {
+  @keyframes blob-float {
+    0% { transform: translate3d(0,0,0) scale(1); }
+    50% { transform: translate3d(2%, -3%, 0) scale(1.05); }
+    100% { transform: translate3d(0,0,0) scale(1); }
+  }
+  @keyframes blob-float-slow {
+    0% { transform: translate3d(0,0,0) scale(1); }
+    50% { transform: translate3d(-3%, 2%, 0) scale(1.06); }
+    100% { transform: translate3d(0,0,0) scale(1); }
+  }
+  .ui-blobs { position: fixed; inset: 0; pointer-events: none; z-index: -9; }
+  .ui-blob {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(60px);
+    opacity: 0.35;
+    mix-blend-mode: soft-light;
+    will-change: transform, opacity;
+  }
+  .ui-blob--1 { width: 520px; height: 520px; top: -120px; left: -120px; animation: blob-float 14s ease-in-out infinite; }
+  .ui-blob--2 { width: 680px; height: 680px; bottom: -160px; right: -160px; animation: blob-float-slow 18s ease-in-out infinite; }
+  .ui-blob--3 { width: 420px; height: 420px; bottom: 10%; left: -120px; animation: blob-float 16s ease-in-out infinite; }
+  .ui-blob--4 { width: 380px; height: 380px; top: 12%; right: 8%; animation: blob-float-slow 22s ease-in-out infinite; }
+  .ui-blob { background: radial-gradient(circle at 40% 40%, rgba(var(--brand-accent-rgb),0.45), rgba(255,255,255,0.0) 60%), radial-gradient(circle at 60% 60%, rgba(var(--brand-accent2-rgb),0.40), rgba(255,255,255,0.0) 70%); }
+  .dark .ui-blob { opacity: 0.28; filter: blur(80px); mix-blend-mode: screen; }
+
+  /* Cursor glow following --glow-x / --glow-y variables */
+  .cursor-glow {
+    position: fixed; inset: 0; pointer-events: none; z-index: -8;
+    background: radial-gradient(380px 380px at var(--glow-x,50%) var(--glow-y,50%), rgba(var(--brand-accent-rgb),0.12), rgba(var(--brand-accent2-rgb),0.08), transparent 60%);
+    transition: background-position 80ms linear, opacity 200ms ease;
+  }
+  .dark .cursor-glow { background: radial-gradient(420px 420px at var(--glow-x,50%) var(--glow-y,50%), rgba(var(--brand-accent-rgb),0.18), rgba(var(--brand-accent2-rgb),0.12), transparent 60%); }
+  @media (prefers-reduced-motion: reduce) {
+    .ui-blob--1, .ui-blob--2, .ui-blob--3, .ui-blob--4 { animation-duration: 40s; }
+  }
+
+  /* Extra depth for cards/buttons in dark mode */
+  .dark .card { box-shadow: 0 20px 60px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.06); }
+  .dark .btn { box-shadow: 0 12px 30px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.1); }
+}
+
 /* Markdown styles for assistant messages */
 @layer components {
   .markdown-body p { margin: 0.25rem 0; }

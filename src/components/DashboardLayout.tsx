@@ -154,6 +154,14 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     <div className="relative min-h-screen">
       {/* Background */}
       <div className="fixed inset-0 -z-10 ray-bg gpu-layer" />
+      {/* Ambient UI blobs + cursor glow */}
+      <div className="ui-blobs">
+        <div className="ui-blob ui-blob--1" />
+        <div className="ui-blob ui-blob--2" />
+        <div className="ui-blob ui-blob--3" />
+        <div className="ui-blob ui-blob--4" />
+      </div>
+      <div className="cursor-glow" />
 
       {/* Floating controls (headless; no header box) */}
       <div className="fixed top-3 right-3 z-40 flex items-center gap-2">
