@@ -1,11 +1,23 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
-  try {
-    return res.status(200).json({ ok: true, t: Date.now() });
-  } catch (e: any) {
-    return res.status(500).json({ ok: false, error: e?.message || 'error' });
-  }
+function sendJson(res: any, status: number, payload: any) {
+  res.statusCode = status;
+  res.setHeader('Content-Type', 'application/json');
+  res.end(JSON.stringify(payload));
 }
 
+function sendText(res: any, status: number, text: string) {
+  res.statusCode = status;
+  res.setHeader('Content-Type', 'text/plain');
+  res.end(text);
+}
+
+export default async function handler(req: any, res: any) {
+  if (req.method !== 'POST') {
+    sendText(res, 405, 'Method Not Allowed');
+    return;
+  }
+  try {
+    sendJson(res, 200, { ok: true, t: Date.now() });
+  } catch (e: any) {
+    sendJson(res, 500, { ok: false, error: e?.message || 'error' });
+  }
+}

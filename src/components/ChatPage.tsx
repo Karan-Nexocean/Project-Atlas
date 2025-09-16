@@ -49,10 +49,6 @@ export const ChatPage: React.FC<{
         const g = localStorage.getItem('atlas:groqKey') || localStorage.getItem('varuna:groqKey') || '';
         if (g) headers['X-Groq-Key'] = g;
       } catch {}
-      try {
-        const db = localStorage.getItem('atlas:dbUrl') || localStorage.getItem('varuna:dbUrl') || '';
-        if (db) headers['X-Db-Url'] = db;
-      } catch {}
       const resp = await fetch('/api/chat', {
         method: 'POST',
         headers,

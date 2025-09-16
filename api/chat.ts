@@ -1,21 +1,33 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { Groq, getHeader, getRecruiterEmailFromHeaders, checkDomain, logToSlack, logToNeon } from './_shared';
+import { Groq, getHeader } from './_shared';
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
-  const allowDomain = process.env.ALLOW_EMAIL_DOMAIN || '';
-  const recruiter = getRecruiterEmailFromHeaders(req.headers as any);
-  const dom = checkDomain(recruiter, allowDomain);
-  if (!dom.ok) return res.status(dom.error?.startsWith('Forbidden') ? 403 : 401).json({ error: dom.error });
+function sendJson(res: any, status: number, payload: any) {
+  res.statusCode = status;
+  res.setHeader('Content-Type', 'application/json');
+  res.end(JSON.stringify(payload));
+}
+
+function sendText(res: any, status: number, text: string) {
+  res.statusCode = status;
+  res.setHeader('Content-Type', 'text/plain');
+  res.end(text);
+}
+
+export default async function handler(req: any, res: any) {
+  if (req.method !== 'POST') {
+    sendText(res, 405, 'Method Not Allowed');
+    return;
+  }
 
   try {
     const rawBody = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
     const body = rawBody as { messages: { role: 'user' | 'assistant'; content: string }[]; context?: { candidateName?: string; analysis?: any; tasks?: any[] } };
     const messages = Array.isArray(body.messages) ? body.messages.slice(-16) : [];
     const headerKey = getHeader(req.headers as any, 'X-Groq-Key');
-    const headerDb = getHeader(req.headers as any, 'X-Db-Url');
     const apiKey = process.env.GROQ_API_KEY || headerKey;
-    if (!apiKey) return res.status(500).json({ error: 'GROQ_API_KEY is not set on server' });
+    if (!apiKey) {
+      sendJson(res, 500, { error: 'GROQ_API_KEY is not set on server' });
+      return;
+    }
     const groq = new Groq({ apiKey });
 
     const systemPrompt = `You are Atlas Assistant — Nexocean’s in‑app assistant for Atlas, our resume analysis tool (React + Vite + Tailwind).\n\nContext you know about this project:\n- Name: Atlas — Resume Analyzer (company: Nexocean). Includes Interview Guide + AI Resume Analysis views.\n- Design: Tailwind CSS, brand tokens via CSS variables ( --brand-blue, --brand-coral, --brand-butter, --brand-lavender, --brand-cream ). Base font is Satoshi.\n- Resume analysis schema with sections: contact, summary, experience, skills, education, formatting, stability; overallScore 0–100; concrete, actionable suggestions.\n- Users can upload text or PDF resumes; PDFs are parsed server-side. The app normalizes analysis into a strict shape before rendering.\n\nPersonality and style:\n- Be upbeat, clear, and helpful. Default to 2–6 concise sentences.\n- Prefer concrete guidance: strong verbs, quantified impact, ATS-friendly keywords, succinct bullet structure (STAR/XYZ style).\n- When suggesting UI/code changes here, use Tailwind-appropriate classes and the brand tokens above.\n- If a user asks for analysis, you can advise generally, but only claim detailed analysis after they upload a resume to the app. No fabrications.\n- Offer a brief follow-up question when useful.\n\nOperating rules:\n- Do not claim to read local files or external links you were not given in the chat.\n- Keep examples short and copy-pastable.\n- American English. No sensitive personal data.`;
@@ -42,12 +54,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     } as any);
 
     const content = (completion as any).choices?.[0]?.message?.content ?? '';
-    logToSlack(`Atlas Chat • ${recruiter || 'unknown'} • turns=${messages.length + 1}`);
-    const toRecord = { kind: 'chat', recruiter: recruiter || 'unknown', turns: messages.length + 1, at: new Date().toISOString() };
-    await logToNeon(toRecord, headerDb || process.env.NEON_DATABASE_URL);
-    return res.status(200).json({ role: 'assistant', content });
+    sendJson(res, 200, { role: 'assistant', content });
   } catch (err: any) {
-    return res.status(500).json({ error: err?.message || 'Internal error' });
+    sendJson(res, 500, { error: err?.message || 'Internal error' });
   }
 }
-

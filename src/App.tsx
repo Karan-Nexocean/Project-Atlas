@@ -118,10 +118,9 @@ function App() {
       })();
       const authHeaders = await (await import('./utils/identity')).getAuthHeaders();
       const groqKey = (() => { try { return localStorage.getItem('atlas:groqKey') || localStorage.getItem('varuna:groqKey') || ''; } catch { return ''; } })();
-      const dbUrl = (() => { try { return localStorage.getItem('atlas:dbUrl') || localStorage.getItem('varuna:dbUrl') || ''; } catch { return ''; } })();
       const resp = await fetch('/api/analyze', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...(recruiter ? { 'X-Recruiter-Email': recruiter } : {}), ...(groqKey ? { 'X-Groq-Key': groqKey } : {}), ...(dbUrl ? { 'X-Db-Url': dbUrl } : {}), ...authHeaders },
+        headers: { 'Content-Type': 'application/json', ...(recruiter ? { 'X-Recruiter-Email': recruiter } : {}), ...(groqKey ? { 'X-Groq-Key': groqKey } : {}), ...authHeaders },
         body: JSON.stringify({ ...payload, candidateName })
       });
       if (!resp.ok) {

@@ -11,70 +11,8 @@ function devApiPlugin() {
   return {
     name: 'dev-api-analyze',
     configureServer(server) {
-      const slackWebhook = process.env.SLACK_WEBHOOK_URL || '';
-      const allowDomain = (process.env.ALLOW_EMAIL_DOMAIN || '').trim().toLowerCase();
-
-      function extractRecruiterEmail(req: any): string | null {
-        const h = req.headers || {};
-        // Primary: our custom header from the frontend
-        let email = (h['x-recruiter-email'] || h['x-user-email'] || '') as string;
-        if (Array.isArray(email)) email = email[0] || '';
-        email = String(email || '').trim();
-        // Common SSO/Access headers if fronted by a gateway (best-effort)
-        const cfEmail = h['cf-access-authenticated-user-email'] as string | undefined;
-        if (!email && cfEmail) email = cfEmail.trim();
-        return email || null;
-      }
-
-      function checkAuthOrReject(req: any, res: any): { email: string | null; ok: boolean } {
-        const email = extractRecruiterEmail(req);
-        if (!allowDomain) return { email, ok: true }; // no restriction set
-        if (!email) {
-          res.statusCode = 401;
-          res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify({ error: 'Unauthorized: missing recruiter identity', hint: 'Set X-Recruiter-Email header or sign in via gateway' }));
-          return { email: null, ok: false };
-        }
-        const ok = email.toLowerCase().endsWith(`@${allowDomain}`);
-        if (!ok) {
-          res.statusCode = 403;
-          res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify({ error: `Forbidden: email must end with @${allowDomain}` }));
-          return { email, ok: false };
-        }
-        return { email, ok: true };
-      }
-
-      async function logToSlack(payload: any) {
-        if (!slackWebhook) return;
-        try {
-          const text = typeof payload === 'string' ? payload : '```' + JSON.stringify(payload, null, 2) + '```';
-          await fetch(slackWebhook, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text }) });
-        } catch {}
-      }
-
-      function deriveCandidateNameFromFilename(filename?: string): string {
-        try {
-          if (!filename) return '';
-          let base = filename.replace(/\.[^.]+$/, '');
-          const first = base.split(/[\-–—|•·]+/)[0];
-          let cleaned = first
-            .replace(/[_\.]+/g, ' ')
-            .replace(/\b(resume|cv|profile|updated|final|draft|copy|v\d+)\b/gi, '')
-            .replace(/\s{2,}/g, ' ')
-            .trim();
-          cleaned = cleaned
-            .split(' ')
-            .filter(Boolean)
-            .map((w) => (w.length <= 3 ? w : w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()))
-            .join(' ');
-          return cleaned;
-        } catch { return ''; }
-      }
       server.middlewares.use('/api/analyze', async (req, res) => {
         try {
-          const auth = checkAuthOrReject(req, res);
-          if (!auth.ok) return;
           if (req.method !== 'POST') {
             res.statusCode = 405;
             res.end('Method Not Allowed');
@@ -212,16 +150,6 @@ Rules:
           res.end(JSON.stringify(normalized));
 
           // Fire-and-forget usage log (no resume content)
-          const event = {
-            kind: 'analyze',
-            recruiter: auth.email || 'unknown',
-            filename: body.filename || 'unknown',
-            candidate: body?.candidateName || deriveCandidateNameFromFilename(body?.filename),
-            input: { type: body.pdfBase64 ? 'pdf' : (body.text ? 'text' : 'unknown'), length: resumeText.length },
-            result: { overallScore: normalized?.overallScore },
-            at: new Date().toISOString(),
-          };
-          logToSlack(`Atlas Analyze • ${event.recruiter} → ${event.candidate || event.filename} • score=${event.result.overallScore ?? 'n/a'} • len=${event.input.length}`);
         } catch (err: any) {
           res.statusCode = 500;
           res.end(JSON.stringify({ error: err?.message || 'Internal error' }));
@@ -230,8 +158,6 @@ Rules:
       // Simple chat endpoint for the Atlas Assistant (inside Atlas)
       server.middlewares.use('/api/chat', async (req, res) => {
         try {
-          const auth = checkAuthOrReject(req, res);
-          if (!auth.ok) return;
           if (req.method !== 'POST') {
             res.statusCode = 405;
             res.end('Method Not Allowed');
@@ -310,13 +236,6 @@ Operating rules:
           res.end(JSON.stringify({ role: 'assistant', content }));
 
           // Lightweight chat usage log (no message content to Slack)
-          const event = {
-            kind: 'chat',
-            recruiter: auth.email || 'unknown',
-            turns: (history || []).length + 1,
-            at: new Date().toISOString(),
-          };
-          logToSlack(`Atlas Chat • ${event.recruiter} • turns=${event.turns}`);
         } catch (err: any) {
           res.statusCode = 500;
           res.end(JSON.stringify({ error: err?.message || 'Internal error' }));

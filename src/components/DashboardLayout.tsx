@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Target, UploadCloud, BarChart3, MessageSquare, Waves, ListTodo, Search, User, KeyRound, Sun, Moon } from 'lucide-react';
 import { IconBadge } from './IconBadge';
 import netlifyIdentity, { initIdentity, currentIdentityEmail } from '../utils/identity';
-import { useToast } from './toast';
 import { initHoverGlow } from '../utils/hoverGlow';
 
 type View = 'guide' | 'upload' | 'analysis' | 'tasks' | 'chat';
@@ -33,9 +32,6 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   });
   const [groqKeyOpen, setGroqKeyOpen] = useState(false);
   const [groqKey, setGroqKey] = useState<string>(() => { try { return localStorage.getItem('atlas:groqKey') || localStorage.getItem('varuna:groqKey') || ''; } catch { return ''; } });
-  const [dbUrl, setDbUrl] = useState<string>(() => { try { return localStorage.getItem('atlas:dbUrl') || localStorage.getItem('varuna:dbUrl') || ''; } catch { return ''; } });
-  const allowedDomain = (import.meta as any)?.env?.VITE_ALLOW_EMAIL_DOMAIN || '';
-  const toast = useToast();
   const [theme, setTheme] = useState<'light'|'dark'>(() => {
     try {
       const saved = localStorage.getItem('atlas:theme');
@@ -75,10 +71,6 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
   function saveEmail(next: string) {
     const v = next.trim();
-    if (allowedDomain && v && !v.toLowerCase().endsWith(`@${String(allowedDomain).toLowerCase()}`)) {
-      toast.error(`Email must end with @${allowedDomain}`);
-      return;
-    }
     try { localStorage.setItem('atlas:recruiterEmail', v); } catch {}
     setEmail(v);
     setIdentityOpen(false);
@@ -89,13 +81,6 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     setGroqKey(v);
     setGroqKeyOpen(false);
   }
-  function saveDbUrl(next: string) {
-    const v = next.trim();
-    try { localStorage.setItem('atlas:dbUrl', v); } catch {}
-    setDbUrl(v);
-    setGroqKeyOpen(false);
-  }
-
   const NavItem: React.FC<{
     id: View;
     label: string;
@@ -196,16 +181,12 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           <div className="absolute inset-0 bg-black/40" onClick={() => setIdentityOpen(false)} />
           <div className="relative w-[92vw] max-w-md card shadow-2xl">
             <h4 className="text-lg font-semibold text-slate-800 mb-2">Your Work Email</h4>
-            <p className="text-sm text-slate-600 mb-4">
-              {allowedDomain
-                ? `Only ${allowedDomain} emails are allowed.`
-                : 'Used to identify who is using Atlas (logged with each analysis).'}
-            </p>
+            <p className="text-sm text-slate-600 mb-4">Optional: helps personalize tasks and follow-ups.</p>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder={`you@${allowedDomain || 'company.com'}`}
+              placeholder="you@company.com"
               className="input"
             />
             <div className="mt-5 flex justify-end gap-3">
@@ -220,7 +201,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           <div className="absolute inset-0 bg-black/40" onClick={() => setGroqKeyOpen(false)} />
           <div className="relative w-[92vw] max-w-md card shadow-2xl">
             <h4 className="text-lg font-semibold text-slate-800 mb-2">Server Credentials</h4>
-            <p className="text-sm text-slate-600 mb-4">These are stored in your browser and sent to your serverless API with each request (for internal testing without platform env vars).</p>
+            <p className="text-sm text-slate-600 mb-4">Stored locally for testing Atlas without environment variables.</p>
             <input
               type="password"
               value={groqKey}
@@ -228,18 +209,11 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               placeholder="gsk_..."
               className="input"
             />
-            <input
-              type="text"
-              value={dbUrl}
-              onChange={(e) => setDbUrl(e.target.value)}
-              placeholder="postgresql://…?sslmode=require"
-              className="input mt-3"
-            />
             <div className="mt-5 flex justify-between gap-3">
-              <button onClick={() => { setGroqKey(''); setDbUrl(''); saveGroqKey(''); saveDbUrl(''); }} className="btn btn-secondary !rounded-xl">Clear</button>
+              <button onClick={() => { setGroqKey(''); saveGroqKey(''); }} className="btn btn-secondary !rounded-xl">Clear</button>
               <div className="flex gap-3">
                 <button onClick={() => setGroqKeyOpen(false)} className="btn btn-secondary !rounded-xl">Cancel</button>
-                <button onClick={() => { saveGroqKey(groqKey); saveDbUrl(dbUrl); }} className="btn btn-primary !rounded-xl">Save</button>
+                <button onClick={() => saveGroqKey(groqKey)} className="btn btn-primary !rounded-xl">Save</button>
               </div>
             </div>
           </div>
