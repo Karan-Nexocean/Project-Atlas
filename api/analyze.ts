@@ -40,8 +40,7 @@ export default async function handler(req: any, res: any) {
       return;
     }
 
-    const headerKey = getHeader(req.headers as any, 'X-Groq-Key');
-    const apiKey = process.env.GROQ_API_KEY || headerKey;
+    const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
       sendJson(res, 500, { error: 'GROQ_API_KEY is not set on server' });
       return;

@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Target, UploadCloud, BarChart3, MessageSquare, Waves, ListTodo, Search, User, KeyRound, Sun, Moon } from 'lucide-react';
-import { IconBadge } from './IconBadge';
-import netlifyIdentity, { initIdentity, currentIdentityEmail } from '../utils/identity';
+import { Target, UploadCloud, BarChart3, MessageSquare, ListTodo, Sun, Moon } from 'lucide-react';
 import { initHoverGlow } from '../utils/hoverGlow';
 
 type View = 'guide' | 'upload' | 'analysis' | 'tasks' | 'chat';
@@ -26,12 +24,6 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   children,
 }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [identityOpen, setIdentityOpen] = useState(false);
-  const [email, setEmail] = useState<string>(() => {
-    try { return localStorage.getItem('atlas:recruiterEmail') || localStorage.getItem('varuna:recruiterEmail') || ''; } catch { return ''; }
-  });
-  const [groqKeyOpen, setGroqKeyOpen] = useState(false);
-  const [groqKey, setGroqKey] = useState<string>(() => { try { return localStorage.getItem('atlas:groqKey') || localStorage.getItem('varuna:groqKey') || ''; } catch { return ''; } });
   const [theme, setTheme] = useState<'light'|'dark'>(() => {
     try {
       const saved = localStorage.getItem('atlas:theme');
@@ -52,35 +44,9 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'));
 
   useEffect(() => {
-    initIdentity();
     initHoverGlow();
-    const onLogin = () => {
-      const e = currentIdentityEmail();
-      if (e) saveEmail(e);
-    };
-    netlifyIdentity.on('login', onLogin);
-    netlifyIdentity.on('logout', () => {
-      // keep manual email fallback, but you may clear it if you want stricter flows
-    });
-    return () => {
-      try {
-        netlifyIdentity.off('login', onLogin);
-      } catch {}
-    };
   }, []);
 
-  function saveEmail(next: string) {
-    const v = next.trim();
-    try { localStorage.setItem('atlas:recruiterEmail', v); } catch {}
-    setEmail(v);
-    setIdentityOpen(false);
-  }
-  function saveGroqKey(next: string) {
-    const v = next.trim();
-    try { localStorage.setItem('atlas:groqKey', v); } catch {}
-    setGroqKey(v);
-    setGroqKeyOpen(false);
-  }
   const NavItem: React.FC<{
     id: View;
     label: string;
@@ -150,19 +116,6 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
       {/* Floating controls (headless; no header box) */}
       <div className="fixed top-3 right-3 z-40 flex items-center gap-2">
-        <button
-          onClick={() => setIdentityOpen(true)}
-          className="ray-btn"
-          title={email ? `Signed in as ${email}` : 'Set your work email'}
-        >
-          <User className="w-4 h-4" />
-          <span className="hidden sm:inline">{email ? email : 'Identify'}</span>
-        </button>
-        <button onClick={() => setGroqKeyOpen(true)} className="ray-btn" title={groqKey ? 'API key set' : 'Set GROQ API key'}>
-          <KeyRound className="w-4 h-4" />
-          <span className="hidden sm:inline">{groqKey ? 'Key' : 'Set Key'}</span>
-        </button>
-        {/* Chat button removed; use main nav 'Atlas Assistant' */}
         <button onClick={toggleTheme} className="ray-btn" title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}>
           {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
         </button>
@@ -175,50 +128,6 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           {children}
         </div>
       </main>
-      {/* Identity modal */}
-      {identityOpen && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setIdentityOpen(false)} />
-          <div className="relative w-[92vw] max-w-md card shadow-2xl">
-            <h4 className="text-lg font-semibold text-slate-800 mb-2">Your Work Email</h4>
-            <p className="text-sm text-slate-600 mb-4">Optional: helps personalize tasks and follow-ups.</p>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@company.com"
-              className="input"
-            />
-            <div className="mt-5 flex justify-end gap-3">
-              <button onClick={() => setIdentityOpen(false)} className="btn btn-secondary !rounded-xl">Cancel</button>
-              <button onClick={() => saveEmail(email)} className="btn btn-primary !rounded-xl">Save</button>
-            </div>
-          </div>
-        </div>
-      )}
-      {groqKeyOpen && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setGroqKeyOpen(false)} />
-          <div className="relative w-[92vw] max-w-md card shadow-2xl">
-            <h4 className="text-lg font-semibold text-slate-800 mb-2">Server Credentials</h4>
-            <p className="text-sm text-slate-600 mb-4">Stored locally for testing Atlas without environment variables.</p>
-            <input
-              type="password"
-              value={groqKey}
-              onChange={(e) => setGroqKey(e.target.value)}
-              placeholder="gsk_..."
-              className="input"
-            />
-            <div className="mt-5 flex justify-between gap-3">
-              <button onClick={() => { setGroqKey(''); saveGroqKey(''); }} className="btn btn-secondary !rounded-xl">Clear</button>
-              <div className="flex gap-3">
-                <button onClick={() => setGroqKeyOpen(false)} className="btn btn-secondary !rounded-xl">Cancel</button>
-                <button onClick={() => saveGroqKey(groqKey)} className="btn btn-primary !rounded-xl">Save</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

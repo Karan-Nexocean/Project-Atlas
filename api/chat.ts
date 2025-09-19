@@ -22,8 +22,7 @@ export default async function handler(req: any, res: any) {
     const rawBody = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
     const body = rawBody as { messages: { role: 'user' | 'assistant'; content: string }[]; context?: { candidateName?: string; analysis?: any; tasks?: any[] } };
     const messages = Array.isArray(body.messages) ? body.messages.slice(-16) : [];
-    const headerKey = getHeader(req.headers as any, 'X-Groq-Key');
-    const apiKey = process.env.GROQ_API_KEY || headerKey;
+    const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
       sendJson(res, 500, { error: 'GROQ_API_KEY is not set on server' });
       return;

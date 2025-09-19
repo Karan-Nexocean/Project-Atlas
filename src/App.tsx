@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { InterviewGuide } from './components/InterviewGuide';
 import { FileUpload } from './components/FileUpload';
 import { AnalysisResults } from './components/AnalysisResults';
@@ -96,7 +96,7 @@ function App() {
     try {
       // Best-effort candidate name from file name (exclude designations)
       const nameFromFile = file ? deriveCandidateName(file) : '';
-      if (nameFromFile) setCandidateName(nameFromFile);
+      setCandidateName(nameFromFile);
       let payload: any = {};
       if (file.type === 'application/pdf') {
         const buffer = await file.arrayBuffer();
@@ -113,15 +113,10 @@ function App() {
         const text = await file.text();
         payload = { text, filename: file.name };
       }
-      const recruiter = (() => {
-        try { return localStorage.getItem('atlas:recruiterEmail') || localStorage.getItem('varuna:recruiterEmail') || ''; } catch { return ''; }
-      })();
-      const authHeaders = await (await import('./utils/identity')).getAuthHeaders();
-      const groqKey = (() => { try { return localStorage.getItem('atlas:groqKey') || localStorage.getItem('varuna:groqKey') || ''; } catch { return ''; } })();
       const resp = await fetch('/api/analyze', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...(recruiter ? { 'X-Recruiter-Email': recruiter } : {}), ...(groqKey ? { 'X-Groq-Key': groqKey } : {}), ...authHeaders },
-        body: JSON.stringify({ ...payload, candidateName })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...payload, candidateName: nameFromFile })
       });
       if (!resp.ok) {
         let detail = '';
