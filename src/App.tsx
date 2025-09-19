@@ -113,14 +113,11 @@ function App() {
         const text = await file.text();
         payload = { text, filename: file.name };
       }
-      console.log('Making request to /api/analyze with payload:', { ...payload, candidateName: nameFromFile });
       const resp = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...payload, candidateName: nameFromFile })
       });
-      console.log('Response status:', resp.status);
-      console.log('Response headers:', Object.fromEntries(resp.headers.entries()));
       if (!resp.ok) {
         let detail = '';
         try {

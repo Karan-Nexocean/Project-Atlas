@@ -12,7 +12,7 @@ function sendText(res: any, status: number, text: string) {
   res.end(text);
 }
 
-export default async function handler(req: any, res: any) {
+const handler = async (req: any, res: any) => {
   if (req.method !== 'POST') {
     sendText(res, 405, 'Method Not Allowed');
     return;
@@ -93,4 +93,6 @@ export default async function handler(req: any, res: any) {
   } catch (err: any) {
     sendJson(res, 500, { error: err?.message || 'Internal error' });
   }
-}
+};
+
+export default handler;
