@@ -30,9 +30,14 @@ app.post('/api/health', healthHandler);
 // Serve static files from dist directory
 app.use(express.static(path.join(__dirname, 'dist')));
 
-// Handle client-side routing
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+// Handle client-side routing - catch all routes that aren't API routes
+app.use((req, res, next) => {
+  // Only serve index.html for GET requests that aren't for API endpoints or static files
+  if (req.method === 'GET' && !req.path.startsWith('/api/')) {
+    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+  } else {
+    next();
+  }
 });
 
 app.listen(PORT, '0.0.0.0', () => {

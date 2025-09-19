@@ -10,7 +10,8 @@
   "author": "Nexocean",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && npm run copy-api",
+    "copy-api": "mkdir -p dist/api && cp -r api/*.js dist/api/",
     "start": "node server.js",
     "lint": "eslint .",
     "preview": "vite preview"
