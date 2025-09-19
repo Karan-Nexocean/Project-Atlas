@@ -1,32 +1,20 @@
 /**
- * Authentication utilities for Netlify Identity integration
+ * Authentication utilities
  */
 
-declare global {
-  interface Window {
-    netlifyIdentity?: {
-      currentUser(): {
-        token?: {
-          access_token?: string;
-        };
-      } | null;
-    };
-  }
-}
-
 /**
- * Get authentication headers from Netlify Identity if available
+ * Get authentication headers if available
  * @returns Promise resolving to headers object with Authorization header if user is authenticated
  */
 export async function getAuthHeaders(): Promise<Record<string, string>> {
   try {
-    // Check if Netlify Identity is available
-    if (typeof window !== 'undefined' && window.netlifyIdentity) {
-      const user = window.netlifyIdentity.currentUser();
+    // Check for a generic auth token in localStorage
+    if (typeof window !== 'undefined') {
+      const authToken = localStorage.getItem('atlas:authToken');
       
-      if (user && user.token && user.token.access_token) {
+      if (authToken) {
         return {
-          'Authorization': `Bearer ${user.token.access_token}`
+          'Authorization': `Bearer ${authToken}`
         };
       }
     }
@@ -35,7 +23,6 @@ export async function getAuthHeaders(): Promise<Record<string, string>> {
     return {};
   } catch (error) {
     // Silently handle errors and return empty object
-    console.warn('Failed to get auth headers:', error);
     return {};
   }
 }
