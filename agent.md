@@ -11,8 +11,8 @@ This document helps automation or AI coding agents work effectively inside the A
 1. **Node version**: use Node 20 (see `.nvmrc`). Always run `nvm use` before installing modules.
 2. **Dependencies**: install with `npm ci` to respect the lockfile.
 3. **Secrets**: copy `.env.example` to `.env.local` and set `GROQ_API_KEY`.
-4. **Dev server**: run `npm run dev`. This starts Vite on port 5173 and mounts mock API routes for analyze/chat so no extra backend is required locally.
-5. **Static preview**: run `npm run build` followed by `npm run preview` to test the production bundle without dev-only APIs.
+4. **Dev server**: run `npm run dev`. This starts Vite on `0.0.0.0:5000` (Replit-compatible) and mounts mock API routes for analyze/chat so no extra backend is required locally.
+5. **Static preview**: run `npm run build` followed by `npm run preview` to test the production bundle; note that preview does **not** expose `/api/*`, so analysis/chat calls will fail.
 
 ## Quality Gates
 - `npm run lint` for ESLint. Fix warnings aggressively; the project treats lint findings as blockers.
@@ -21,7 +21,9 @@ This document helps automation or AI coding agents work effectively inside the A
 
 ## Implementation Guidelines
 - **State management**: prefer React hooks/local state. Persistent recruiter metadata and tasks are stored via `localStorage` using keys starting with `atlas:` (see `src/components/TasksView.tsx` and `src/utils/identity.ts`).
-- **API calls**: use the helpers in `src/utils/api.ts` (or follow existing patterns) so headers such as `X-Recruiter-Email` and `X-Groq-Key` stay consistent.
+- **API calls**: follow the fetch patterns in `src/App.tsx`, `src/components/ChatPage.tsx`, and `src/hooks/useTaskPlanner.ts` so headers such as `X-Recruiter-Email`, `X-Groq-Key`, and any bearer tokens remain consistent.
+- **Identity data**: recruiter email, Groq overrides, and auth tokens are pulled from `localStorage` keys prefixed with `atlas:` (legacy `varuna:` / `wingman:` keys are still migrated). Touch these flows with care.
+- **Atlas Assistant**: extend the dedicated `ChatPage` component for chat UX; `ChatAssistant` remains as a legacy modal for reference only.
 - **LLM payloads**: keep prompts centralized. The JSON schema enforcement lives in `api/analyze.ts` and `src/App.tsx`. When changing shapes, update both client normalization and `_shared.ts`.
 - **PDF parsing**: `pdf-parse` is lazy-imported for faster cold starts. Respect chunk limits (12k chars) to avoid overloading Groq.
 - **Styling**: Tailwind classes live alongside component markup; refer to `tailwind.config.js` for custom colors/spacing. Use semantic class names already in use.
@@ -42,6 +44,7 @@ This document helps automation or AI coding agents work effectively inside the A
 - [ ] Dev server test covering resume upload, analysis display, chat interaction, and task persistence.
 - [ ] Documentation updated when contracts, env vars, or workflows change (README + this handbook).
 - [ ] Secrets handled through `.env.local` or platform settings only.
-- [ ] For backend tweaks, run a quick smoke test against the local dev server (`npm run dev`) to verify responses.
+- [ ] For backend or export tweaks, run `npm run build && npm start` to smoke test the Express bundle served from `dist/`.
+- [ ] Run a quick smoke test against the local dev server (`npm run dev`) to verify `/api/analyze` and `/api/chat` responses.
 
 Keep this guide updated whenever workflow or architecture changes to reduce ramp-up time for future agents.
